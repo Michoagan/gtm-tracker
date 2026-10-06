@@ -101,6 +101,28 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         </div>
         <?php endif; ?>
     </nav>
+        <div style="padding: 10px 14px 0;">
+        <button id="pwaManualInstallBtn" style="
+            display: none;
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.4);
+            transition: all 0.2s ease;
+        ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Installer l'app
+        </button>
+    </div>
     <div class="sidebar-footer">
         <a href="/gtm-tracker/profile.php" class="user-info" style="text-decoration:none;cursor:pointer" title="Voir mon profil">
             <div class="user-avatar"><?= strtoupper(substr($user['name'],0,1)) ?></div>

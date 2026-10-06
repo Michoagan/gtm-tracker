@@ -115,7 +115,7 @@ function renderBarChart(canvasId, labels, data, color) {
 
 // Expose globally
 window.renderBarChart = renderBarChart;
-// --- PWA Universal Install Manager (Android, PC & iPhone) ---
+// --- PWA Universal Install Manager (Autorisation explicite de l'utilisateur) ---
 (function() {
     // 1. Enregistrement Service Worker
     if ('serviceWorker' in navigator) {
@@ -126,35 +126,66 @@ window.renderBarChart = renderBarChart;
         });
     }
 
-    // 2. Detection environnement
+    // 2. Si deja lancee en application installee (Standalone), on masque tout
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     if (isStandalone) {
-        // Deja installee en application
         return;
     }
 
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     let deferredPrompt = null;
 
-    // 3. Gestion Android & PC (Chrome, Edge, Samsung Internet, etc.)
+    // Bouton permanent dans la barre laterale
+    const sidebarBtn = document.getElementById('pwaManualInstallBtn');
+
+    // 3. PC & Android : capture de l'evenement d'installation natif
     window.addEventListener('beforeinstallprompt', (e) => {
+        // Empeche l'installation automatique : le navigateur DOIT attendre le clic utilisateur
         e.preventDefault();
         deferredPrompt = e;
-        showInstallBanner('native');
+
+        // Afficher le bouton dans le menu si present
+        if (sidebarBtn) {
+            sidebarBtn.style.display = 'inline-flex';
+            sidebarBtn.onclick = () => triggerInstallPrompt();
+        }
+
+        // Proposer la banniere discrete de consentement
+        if (!sessionStorage.getItem('pwa_prompt_dismissed')) {
+            showConsentBanner('native');
+        }
     });
 
-    // 4. Gestion iPhone / iPad Safari
-    if (isIos && !sessionStorage.getItem('pwa_ios_dismissed')) {
-        // Verifier que c'est Safari iOS (et pas deja en standalone)
+    // 4. Sur iPhone / iPad Safari
+    if (isIos) {
         const isSafari = /safari/.test(window.navigator.userAgent.toLowerCase()) && !/crios|fxios/.test(window.navigator.userAgent.toLowerCase());
         if (isSafari) {
-            setTimeout(() => {
-                showInstallBanner('ios');
-            }, 2500); // afficher apres 2.5s d'arrivee
+            if (sidebarBtn) {
+                sidebarBtn.style.display = 'inline-flex';
+                sidebarBtn.onclick = () => showConsentBanner('ios');
+            }
+            if (!sessionStorage.getItem('pwa_prompt_dismissed')) {
+                setTimeout(() => showConsentBanner('ios'), 3000);
+            }
         }
     }
 
-    function showInstallBanner(type) {
+    // Action déclenchée uniquement après autorisation de l'utilisateur
+    async function triggerInstallPrompt() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const choice = await deferredPrompt.userChoice;
+            if (choice.outcome === 'accepted') {
+                console.log('Utilisateur a autorise l installation PWA');
+                if (sidebarBtn) sidebarBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.remove();
+        }
+    }
+
+    function showConsentBanner(type) {
         if (document.getElementById('pwaInstallBanner')) return;
 
         const banner = document.createElement('div');
@@ -199,22 +230,22 @@ window.renderBarChart = renderBarChart;
                     📲
                 </div>
                 <div style="flex:1;min-width:0">
-                    <strong style="display:block;font-size:14px;color:#0f172a;font-weight:700">Installer GTM Tracker</strong>
-                    <span style="font-size:12px;color:#64748b;display:block;margin-top:2px">Application rapide sur PC & Android</span>
+                    <strong style="display:block;font-size:14px;color:#0f172a;font-weight:700">Installer GTM Tracker ?</strong>
+                    <span style="font-size:12px;color:#64748b;display:block;margin-top:2px">Voulez-vous ajouter l'app sur votre écran d'accueil ?</span>
                 </div>
                 <button id="pwaInstallBtn" style="
                     background: linear-gradient(135deg,#6366f1,#4f46e5);
                     color: #fff;
                     border: none;
                     border-radius: 8px;
-                    padding: 9px 16px;
+                    padding: 9px 15px;
                     font-size: 12.5px;
                     font-weight: 600;
                     cursor: pointer;
                     white-space: nowrap;
                     box-shadow: 0 4px 12px rgba(99,102,241,0.35);
-                ">Installer</button>
-                <button id="pwaDismissBtn" title="Fermer" style="
+                ">Autoriser</button>
+                <button id="pwaDismissBtn" title="Refuser" style="
                     background: transparent;
                     border: none;
                     color: #94a3b8;
@@ -227,16 +258,8 @@ window.renderBarChart = renderBarChart;
             `;
             document.body.appendChild(banner);
 
-            document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const choice = await deferredPrompt.userChoice;
-                    if (choice.outcome === 'accepted') {
-                        console.log('GTM Tracker installed successfully');
-                    }
-                    deferredPrompt = null;
-                    banner.remove();
-                }
+            document.getElementById('pwaInstallBtn').addEventListener('click', () => {
+                triggerInstallPrompt();
             });
         } else if (type === 'ios') {
             banner.innerHTML = `
@@ -246,7 +269,7 @@ window.renderBarChart = renderBarChart;
                 <div style="flex:1;min-width:0">
                     <strong style="display:block;font-size:13.5px;color:#0f172a;font-weight:700">Installer sur iPhone</strong>
                     <span style="font-size:11.5px;color:#64748b;display:block;margin-top:2px">
-                        Touchez <strong>Partager</strong> <span style="font-size:14px">⎋</span> puis <strong>« Sur l'écran d'accueil »</strong> <strong>➕</strong>
+                        Touchez <strong>Partager</strong> <span style="font-size:14px">⎋</span> puis <strong>« Sur l'écran d'accueil » ➕</strong>
                     </span>
                 </div>
                 <button id="pwaDismissBtn" style="
@@ -265,7 +288,7 @@ window.renderBarChart = renderBarChart;
         }
 
         document.getElementById('pwaDismissBtn').addEventListener('click', () => {
-            if (type === 'ios') sessionStorage.setItem('pwa_ios_dismissed', '1');
+            sessionStorage.setItem('pwa_prompt_dismissed', '1');
             banner.remove();
         });
     }
