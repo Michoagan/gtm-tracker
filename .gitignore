@@ -1,0 +1,11 @@
+# Environnement et secrets
+.env
+*.log
+
+# Cache et uploads temporaires
+scratch/
+uploads/*
+!uploads/.gitkeep
+
+# Base locale SQLite (si on utilise Postgres en ligne)
+# database/*.sqlite

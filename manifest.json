@@ -1,0 +1,57 @@
+{
+  "name": "GTM Tracker — Suivi Go-To-Market",
+  "short_name": "GTM Tracker",
+  "description": "Pilotez vos actions commerciales, prospects et performances Go-To-Market en temps réel.",
+  "start_url": "/gtm-tracker/dashboard.php",
+  "id": "/gtm-tracker/",
+  "scope": "/gtm-tracker/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "fr-FR",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/gtm-tracker/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/gtm-tracker/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/gtm-tracker/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/gtm-tracker/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/gtm-tracker/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Prospects",
+      "url": "/gtm-tracker/prospects/index.php",
+      "description": "Voir la liste des prospects"
+    },
+    {
+      "name": "Mon Espace",
+      "url": "/gtm-tracker/my-space.php",
+      "description": "Accéder à mon espace dédié collaborateur"
+    }
+  ]
+}
