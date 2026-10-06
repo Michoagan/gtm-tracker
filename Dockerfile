@@ -11,16 +11,19 @@ RUN apt-get update && apt-get install -y \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 
-# Copier le code du projet dans le dossier web Apache
+# Configurer le répertoire de travail
 WORKDIR /var/www/html
+
+# Copier tous les fichiers du projet
 COPY . /var/www/html/
 
-# Donner les droits d'écriture pour SQLite, sessions et uploads
-RUN chown -R www-data:www-data /var/www/html \
+# Créer les dossiers nécessaires s'ils n'existent pas et assigner les droits
+RUN mkdir -p /var/www/html/database /var/www/html/uploads \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/database \
     && chmod -R 775 /var/www/html/uploads
 
-# Port web standard
+# Port d'écoute standard Apache
 EXPOSE 80
 
 CMD ["apache2-foreground"]
