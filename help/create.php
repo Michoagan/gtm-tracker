@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Demander de l\'aide (SOS)';
 require_once __DIR__ . '/../includes/header.php';
 $db = getDB();

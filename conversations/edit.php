@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Modifier conversation';
 require_once __DIR__ . '/../includes/header.php';
 $db = getDB();

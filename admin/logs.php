@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = "Journal d'activite";
 require_once __DIR__ . '/../includes/header.php';
 requireAdmin();

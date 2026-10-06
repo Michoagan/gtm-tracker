@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Nouvelle strategie';
 require_once __DIR__ . '/../includes/header.php';
 requireAdmin();

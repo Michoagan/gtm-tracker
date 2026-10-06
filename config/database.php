@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Configuration base de donnees (PostgreSQL Aiven + fallback SQLite)
 define("PG_HOST", "pg-1e5f9d3c-onspecialtech-a4ba.f.aivencloud.com");
 define("PG_PORT", "20822");

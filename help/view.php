@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Détail de la demande d\'aide';
 require_once __DIR__ . '/../includes/header.php';
 $db = getDB();

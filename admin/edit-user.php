@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Modifier utilisateur';
 require_once __DIR__ . '/../includes/header.php';
 requireAdmin();

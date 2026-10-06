@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Gestion du Personnel';
 require_once __DIR__ . '/../includes/header.php';
 requireAdmin();

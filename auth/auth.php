@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . "/../config/database.php";
 
 // Membres du personnel définis statiquement (sans base de données)

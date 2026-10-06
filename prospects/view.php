@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Fiche prospect';
 require_once __DIR__ . '/../includes/header.php';
 $db    = getDB();

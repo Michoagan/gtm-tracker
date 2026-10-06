@@ -1,3 +1,4 @@
-﻿<?php
-header('Location: /gtm-tracker/login.php');
+<?php
+$prefix = (strpos($_SERVER['REQUEST_URI'] ?? '', '/gtm-tracker') === 0) ? '/gtm-tracker' : '';
+header('Location: ' . $prefix . '/login.php');
 exit;
