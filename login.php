@@ -20,7 +20,7 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selected_id = $_POST['member_id'] ?? null;
-    $pin         = $_POST['pin'] ?? '';
+    $password    = trim($_POST['password'] ?? $_POST['pin'] ?? '');
 
     // Trouver le membre sélectionné
     $member = null;
@@ -33,28 +33,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$member) {
         $error = 'Veuillez sélectionner un membre du personnel.';
-    } elseif ($member['role'] === 'admin') {
-        // Admin nécessite un PIN
-        if ($pin !== 'Onspecial001') {
-            $error = 'Code PIN administrateur incorrect.';
+    } elseif ($password === '') {
+        $error = 'Veuillez saisir votre mot de passe.';
+    } else {
+        // Le mot de passe de chaque utilisateur est défini comme son nom
+        $expectedName = trim($member['name']);
+        $isValid = false;
+
+        // Comparaison insensible à la casse avec le nom
+        if (strcasecmp($password, $expectedName) === 0) {
+            $isValid = true;
+        } elseif ($member['role'] === 'admin' && ($password === 'Onspecial001' || strcasecmp($password, 'Admin') === 0 || strcasecmp($password, 'Administrateur') === 0)) {
+            $isValid = true;
+        }
+
+        if (!$isValid) {
+            $error = 'Mot de passe incorrect pour ' . htmlspecialchars($member['name'], ENT_QUOTES, 'UTF-8') . '. Votre mot de passe est votre nom.';
         } else {
-            $_SESSION['user_id']    = 0;
-            $_SESSION['user_name']  = 'Admin';
-            $_SESSION['user_email'] = 'onspecial@gmail.com';
-            $_SESSION['user_role']  = 'admin';
-            logActivity(0, 'connexion', 'Connexion Admin');
+            if ($member['role'] === 'admin') {
+                $_SESSION['user_id']    = 0;
+                $_SESSION['user_name']  = 'Admin';
+                $_SESSION['user_email'] = 'onspecial@gmail.com';
+                $_SESSION['user_role']  = 'admin';
+                logActivity(0, 'connexion', 'Connexion Admin');
+            } else {
+                $_SESSION['user_id']    = $member['id'];
+                $_SESSION['user_name']  = $member['name'];
+                $_SESSION['user_email'] = strtolower(str_replace(' ', '.', $member['name'])) . '@getspecial.com';
+                $_SESSION['user_role']  = 'collaborator';
+                logActivity($member['id'], 'connexion', 'Connexion ' . $member['name']);
+            }
             header('Location: /gtm-tracker/dashboard.php');
             exit;
         }
-    } else {
-        // Collaborateur — connexion directe
-        $_SESSION['user_id']    = $member['id'];
-        $_SESSION['user_name']  = $member['name'];
-        $_SESSION['user_email'] = strtolower(str_replace(' ', '.', $member['name'])) . '@getspecial.com';
-        $_SESSION['user_role']  = 'collaborator';
-        logActivity($member['id'], 'connexion', 'Connexion ' . $member['name']);
-        header('Location: /gtm-tracker/dashboard.php');
-        exit;
     }
 }
 ?>
@@ -193,31 +204,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: none;
             margin-top: 20px;
             padding: 20px;
-            background: rgba(239,68,68,0.05);
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 12px;
+            background: rgba(99,102,241,0.06);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 14px;
         }
         .pin-section.visible { display: block; }
         .pin-section label {
             display: block; font-size: 13px;
-            font-weight: 500; color: var(--text-muted);
+            font-weight: 600; color: var(--text-main);
             margin-bottom: 8px;
         }
         .pin-input {
-            width: 100%; padding: 12px 16px;
+            width: 100%; padding: 13px 16px;
             background: var(--bg-elevated);
-            border: 1px solid rgba(239,68,68,0.3);
-            border-radius: 8px;
+            border: 1px solid var(--border-strong);
+            border-radius: 10px;
             color: var(--text-main);
-            font-size: 16px; letter-spacing: 4px;
-            font-family: 'Inter', monospace;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
             text-align: center;
             box-sizing: border-box;
+            transition: var(--transition);
         }
         .pin-input:focus {
             outline: none;
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
         .divider { height: 1px; background: var(--border); margin: 24px 0; }
         .connect-btn {
@@ -309,9 +321,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="pin-section" id="pinSection">
-                    <label for="pin">🔐 Code PIN administrateur</label>
-                    <input type="password" id="pin" name="pin" class="pin-input"
-                           placeholder="• • • • • • •" autocomplete="off" maxlength="20">
+                    <label for="password" id="passwordLabel">🔑 Mot de passe</label>
+                    <input type="password" id="password" name="password" class="pin-input"
+                           placeholder="Entrez votre mot de passe..." autocomplete="current-password" required>
+                    <div id="passwordHint" style="font-size:12px;color:var(--text-muted);margin-top:8px;text-align:center">
+                        💡 Votre mot de passe est votre nom
+                    </div>
                 </div>
 
                 <button type="submit" class="connect-btn" id="connectBtn" disabled>
@@ -339,17 +354,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('member_id_input').value = id;
         document.getElementById('selectedName').textContent = name;
         document.getElementById('selectedInfo').classList.add('visible');
-        document.getElementById('connectBtn').disabled = false;
 
-        // Afficher le champ PIN uniquement pour Admin
         const pinSection = document.getElementById('pinSection');
-        if (role === 'admin') {
-            pinSection.classList.add('visible');
-            document.getElementById('pin').focus();
-        } else {
-            pinSection.classList.remove('visible');
-            document.getElementById('pin').value = '';
-        }
+        const pwdInput   = document.getElementById('password');
+        const pwdHint    = document.getElementById('passwordHint');
+
+        pinSection.classList.add('visible');
+        pwdInput.value = '';
+        pwdInput.placeholder = 'Entrez : ' + name;
+        pwdHint.innerHTML = '💡 Votre mot de passe est votre nom : <strong>' + name + '</strong>';
+        document.getElementById('connectBtn').disabled = false;
+        setTimeout(() => pwdInput.focus(), 60);
     }
     </script>
 

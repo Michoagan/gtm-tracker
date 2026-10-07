@@ -131,15 +131,24 @@ function initDatabase(): void {
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
 
-    // Seed admin
-    $admin = $db->query("SELECT id FROM users WHERE email='admin@gtmtracker.com'")->fetch();
-    if (!$admin) {
-        $hash = password_hash('Admin@2024!', PASSWORD_BCRYPT);
-        $db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)")
-           ->execute(['Administrateur', 'admin@gtmtracker.com', $hash, 'admin']);
-        echo "Admin cree.<br>";
+    // Seed users
+    $seedUsers = [
+        ['Admin', 'onspecial@gmail.com', 'admin'],
+        ['GABIN SOKINDJI', 'gabin.sokindji@getspecial.com', 'collaborator'],
+        ['TRESOR NEKOUA', 'tresor.nekoua@getspecial.com', 'collaborator'],
+        ['ADJIBI DAHLIA', 'adjibi.dahlia@getspecial.com', 'collaborator'],
+        ['MARIO MITCHOAGAN', 'mario.mitchoagan@getspecial.com', 'collaborator'],
+    ];
+    foreach ($seedUsers as $su) {
+        $exists = $db->prepare("SELECT id FROM users WHERE email=? OR name=?");
+        $exists->execute([$su[1], $su[0]]);
+        if (!$exists->fetch()) {
+            $hash = password_hash($su[0], PASSWORD_BCRYPT);
+            $db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)")
+               ->execute([$su[0], $su[1], $hash, $su[2]]);
+        }
     }
-    $adminId = $db->query("SELECT id FROM users WHERE role='admin'")->fetch()['id'];
+    $adminId = $db->query("SELECT id FROM users WHERE role='admin' LIMIT 1")->fetch()['id'] ?? 1;
 
     // Seed strategies
     $strats = $db->query("SELECT COUNT(*) as c FROM strategies")->fetch();
