@@ -14,7 +14,7 @@ function getMembers(): array {
 
 function requireLogin(): void {
     if (session_status() === PHP_SESSION_NONE) session_start();
-    if (empty($_SESSION["user_id"]) && $_SESSION["user_id"] !== 0) {
+    if (!isset($_SESSION["user_id"]) || $_SESSION["user_id"] === '') {
         header("Location: /gtm-tracker/login.php");
         exit;
     }

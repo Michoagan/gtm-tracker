@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . "/config/database.php";
 
-if (!empty($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id']) && $_SESSION['user_id'] !== '') {
     header('Location: /gtm-tracker/dashboard.php');
     exit;
 }
