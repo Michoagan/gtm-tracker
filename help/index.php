@@ -32,7 +32,8 @@ if ($fStatus === 'open') {
 }
 
 if ($fSearch !== '') {
-    $query .= " AND (hr.title ILIKE ? OR hr.message ILIKE ? OR u.name ILIKE ?)";
+    $likeOp = (($GLOBALS['CURRENT_DB_DRIVER'] ?? '') === 'pgsql') ? 'ILIKE' : 'LIKE';
+    $query .= " AND (hr.title $likeOp ? OR hr.message $likeOp ? OR u.name $likeOp ?)";
     $params[] = "%$fSearch%";
     $params[] = "%$fSearch%";
     $params[] = "%$fSearch%";

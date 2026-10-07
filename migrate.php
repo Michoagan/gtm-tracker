@@ -74,6 +74,9 @@ $tables = [
         channel_id INTEGER REFERENCES channels(id) ON DELETE SET NULL,
         status TEXT DEFAULT 'Nouveau',
         assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        follow_up_status TEXT DEFAULT 'A relancer',
+        next_followup_date DATE,
+        notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )",
@@ -81,8 +84,10 @@ $tables = [
     'actions' => "CREATE TABLE IF NOT EXISTS actions (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        assigned_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
         strategy_id INTEGER REFERENCES strategies(id) ON DELETE SET NULL,
         channel_id INTEGER REFERENCES channels(id) ON DELETE SET NULL,
+        prospect_id INTEGER REFERENCES prospects(id) ON DELETE SET NULL,
         title TEXT NOT NULL,
         description TEXT,
         status TEXT DEFAULT 'A faire',
@@ -128,6 +133,26 @@ $tables = [
         action TEXT NOT NULL,
         details TEXT,
         ip_address TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
+
+    'help_requests' => "CREATE TABLE IF NOT EXISTS help_requests (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        action_id INTEGER REFERENCES actions(id) ON DELETE SET NULL,
+        prospect_id INTEGER REFERENCES prospects(id) ON DELETE SET NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT DEFAULT 'Ouvert',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
+
+    'help_comments' => "CREATE TABLE IF NOT EXISTS help_comments (
+        id SERIAL PRIMARY KEY,
+        request_id INTEGER NOT NULL REFERENCES help_requests(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        comment TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"
 ];

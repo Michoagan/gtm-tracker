@@ -14,6 +14,88 @@ define("UPLOAD_URL", "uploads/");
 define("APP_NAME", "GTM Tracker");
 define("APP_VERSION", "1.0.0");
 
+function ensureSchema(PDO $db, string $driver): void {
+    static $ensured = false;
+    if ($ensured) return;
+    $ensured = true;
+
+    try {
+        if ($driver === 'sqlite') {
+            // Actions
+            $actCols = $db->query("PRAGMA table_info(actions)")->fetchAll(PDO::FETCH_COLUMN, 1);
+            if (!in_array('prospect_id', $actCols)) {
+                $db->exec("ALTER TABLE actions ADD COLUMN prospect_id INTEGER REFERENCES prospects(id) ON DELETE SET NULL");
+            }
+            if (!in_array('assigned_by', $actCols)) {
+                $db->exec("ALTER TABLE actions ADD COLUMN assigned_by INTEGER REFERENCES users(id) ON DELETE SET NULL");
+            }
+
+            // Prospects
+            $prosCols = $db->query("PRAGMA table_info(prospects)")->fetchAll(PDO::FETCH_COLUMN, 1);
+            if (!in_array('follow_up_status', $prosCols)) {
+                $db->exec("ALTER TABLE prospects ADD COLUMN follow_up_status TEXT DEFAULT 'A relancer'");
+            }
+            if (!in_array('next_followup_date', $prosCols)) {
+                $db->exec("ALTER TABLE prospects ADD COLUMN next_followup_date DATE");
+            }
+            if (!in_array('notes', $prosCols)) {
+                $db->exec("ALTER TABLE prospects ADD COLUMN notes TEXT");
+            }
+
+            // Help tables
+            $db->exec("CREATE TABLE IF NOT EXISTS help_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                action_id INTEGER,
+                prospect_id INTEGER,
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                status TEXT DEFAULT 'Ouvert',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE SET NULL,
+                FOREIGN KEY(prospect_id) REFERENCES prospects(id) ON DELETE SET NULL
+            )");
+            $db->exec("CREATE TABLE IF NOT EXISTS help_comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                request_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                comment TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(request_id) REFERENCES help_requests(id) ON DELETE CASCADE,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            )");
+        } elseif ($driver === 'pgsql') {
+            $db->exec("ALTER TABLE actions ADD COLUMN IF NOT EXISTS prospect_id INTEGER REFERENCES prospects(id) ON DELETE SET NULL;");
+            $db->exec("ALTER TABLE actions ADD COLUMN IF NOT EXISTS assigned_by INTEGER REFERENCES users(id) ON DELETE SET NULL;");
+            $db->exec("ALTER TABLE prospects ADD COLUMN IF NOT EXISTS follow_up_status TEXT DEFAULT 'A relancer';");
+            $db->exec("ALTER TABLE prospects ADD COLUMN IF NOT EXISTS next_followup_date DATE;");
+            $db->exec("ALTER TABLE prospects ADD COLUMN IF NOT EXISTS notes TEXT;");
+            $db->exec("CREATE TABLE IF NOT EXISTS help_requests (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                action_id INTEGER REFERENCES actions(id) ON DELETE SET NULL,
+                prospect_id INTEGER REFERENCES prospects(id) ON DELETE SET NULL,
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                status TEXT DEFAULT 'Ouvert',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );");
+            $db->exec("CREATE TABLE IF NOT EXISTS help_comments (
+                id SERIAL PRIMARY KEY,
+                request_id INTEGER NOT NULL REFERENCES help_requests(id) ON DELETE CASCADE,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                comment TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );");
+        }
+    } catch (Throwable $e) {
+        error_log("ensureSchema error: " . $e->getMessage());
+    }
+}
+
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
@@ -27,6 +109,7 @@ function getDB(): PDO {
             ]);
             $pdo->exec("SET search_path TO " . PG_SCHEMA . ", public;");
             $GLOBALS['CURRENT_DB_DRIVER'] = 'pgsql';
+            ensureSchema($pdo, 'pgsql');
         } catch (Throwable $e) {
             // 2. Repli automatique sur SQLite local
             try {
@@ -36,6 +119,7 @@ function getDB(): PDO {
                 $pdo->exec("PRAGMA journal_mode=WAL");
                 $pdo->exec("PRAGMA foreign_keys=ON");
                 $GLOBALS['CURRENT_DB_DRIVER'] = 'sqlite';
+                ensureSchema($pdo, 'sqlite');
             } catch (PDOException $sqle) {
                 die("Erreur base de donnees : " . $sqle->getMessage());
             }

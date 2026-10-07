@@ -35,6 +35,9 @@ function initDatabase(): void {
         channel_id INTEGER,
         status TEXT DEFAULT 'Nouveau',
         assigned_to INTEGER,
+        follow_up_status TEXT DEFAULT 'A relancer',
+        next_followup_date DATE,
+        notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(channel_id) REFERENCES channels(id) ON DELETE SET NULL,
@@ -43,8 +46,10 @@ function initDatabase(): void {
     $db->exec("CREATE TABLE IF NOT EXISTS actions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
+        assigned_by INTEGER,
         strategy_id INTEGER,
         channel_id INTEGER,
+        prospect_id INTEGER,
         title TEXT NOT NULL,
         description TEXT,
         status TEXT DEFAULT 'A faire',
@@ -55,8 +60,10 @@ function initDatabase(): void {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(assigned_by) REFERENCES users(id) ON DELETE SET NULL,
         FOREIGN KEY(strategy_id) REFERENCES strategies(id) ON DELETE SET NULL,
-        FOREIGN KEY(channel_id) REFERENCES channels(id) ON DELETE SET NULL
+        FOREIGN KEY(channel_id) REFERENCES channels(id) ON DELETE SET NULL,
+        FOREIGN KEY(prospect_id) REFERENCES prospects(id) ON DELETE SET NULL
     )");
     $db->exec("CREATE TABLE IF NOT EXISTS conversations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,6 +106,29 @@ function initDatabase(): void {
         ip_address TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL
+    )");
+    $db->exec("CREATE TABLE IF NOT EXISTS help_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        action_id INTEGER,
+        prospect_id INTEGER,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT DEFAULT 'Ouvert',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE SET NULL,
+        FOREIGN KEY(prospect_id) REFERENCES prospects(id) ON DELETE SET NULL
+    )");
+    $db->exec("CREATE TABLE IF NOT EXISTS help_comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        request_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        comment TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(request_id) REFERENCES help_requests(id) ON DELETE CASCADE,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
 
     // Seed admin
