@@ -9,12 +9,18 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_id'] !== '') {
 
 // Membres du personnel (pas de DB nécessaire)
 $members = [
-    ['id' => 1, 'name' => 'GABIN SOKINDJI',  'role' => 'collaborator', 'avatar' => 'GS', 'color' => '#6366f1'],
-    ['id' => 2, 'name' => 'TRESOR NEKOUA',   'role' => 'collaborator', 'avatar' => 'TN', 'color' => '#22c55e'],
-    ['id' => 3, 'name' => 'ADJIBI DAHLIA',   'role' => 'collaborator', 'avatar' => 'AD', 'color' => '#f59e0b'],
-    ['id' => 4, 'name' => 'MARIO MITCHOAGAN', 'role' => 'collaborator', 'avatar' => 'MM', 'color' => '#0ea5e9'],
-    ['id' => 0, 'name' => 'Admin',            'role' => 'admin',        'avatar' => 'A',  'color' => '#ef4444'],
+    ['id' => 1, 'name' => 'GABIN SOKINDJI',   'firstname' => 'Gabin',  'role' => 'collaborator', 'avatar' => 'GS', 'color' => '#6366f1'],
+    ['id' => 2, 'name' => 'TRESOR NEKOUA',    'firstname' => 'Tresor', 'role' => 'collaborator', 'avatar' => 'TN', 'color' => '#22c55e'],
+    ['id' => 3, 'name' => 'ADJIBI DAHLIA',    'firstname' => 'Dahlia', 'role' => 'collaborator', 'avatar' => 'AD', 'color' => '#f59e0b'],
+    ['id' => 4, 'name' => 'MARIO MITCHOAGAN', 'firstname' => 'Mario',  'role' => 'collaborator', 'avatar' => 'MM', 'color' => '#0ea5e9'],
+    ['id' => 0, 'name' => 'Admin',             'firstname' => 'Admin',  'role' => 'admin',        'avatar' => 'A',  'color' => '#ef4444'],
 ];
+
+function cleanName(string $s): string {
+    $s = trim(mb_strtolower($s, 'UTF-8'));
+    $accents = ['é'=>'e','è'=>'e','ê'=>'e','ë'=>'e','à'=>'a','â'=>'a','î'=>'i','ï'=>'i','ô'=>'o','ù'=>'u','û'=>'u','ç'=>'c'];
+    return strtr($s, $accents);
+}
 
 $error = '';
 
@@ -34,21 +40,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$member) {
         $error = 'Veuillez sélectionner un membre du personnel.';
     } elseif ($password === '') {
-        $error = 'Veuillez saisir votre mot de passe.';
+        $error = 'Veuillez saisir votre prénom comme mot de passe.';
     } else {
-        // Le mot de passe de chaque utilisateur est défini comme son nom
-        $expectedName = trim($member['name']);
-        $isValid = false;
+        // Le mot de passe de chaque utilisateur est son PRÉNOM
+        $cleanInput = cleanName($password);
+        $cleanFirst = cleanName($member['firstname']);
+        $isValid    = false;
 
-        // Comparaison insensible à la casse avec le nom
-        if (strcasecmp($password, $expectedName) === 0) {
+        if ($cleanInput === $cleanFirst) {
             $isValid = true;
-        } elseif ($member['role'] === 'admin' && ($password === 'Onspecial001' || strcasecmp($password, 'Admin') === 0 || strcasecmp($password, 'Administrateur') === 0)) {
+        } elseif ($member['id'] == 3 && $cleanInput === 'adjibi') {
+            // Pour ADJIBI DAHLIA, accepter également Adjibi
+            $isValid = true;
+        } elseif ($member['role'] === 'admin' && ($password === 'Onspecial001' || $cleanInput === 'administrateur')) {
             $isValid = true;
         }
 
         if (!$isValid) {
-            $error = 'Mot de passe incorrect pour ' . htmlspecialchars($member['name'], ENT_QUOTES, 'UTF-8') . '. Votre mot de passe est votre nom.';
+            $error = 'Mot de passe incorrect pour ' . htmlspecialchars($member['name'], ENT_QUOTES, 'UTF-8') . '. Votre mot de passe est votre prénom.';
         } else {
             if ($member['role'] === 'admin') {
                 $_SESSION['user_id']    = 0;
@@ -302,6 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         class="member-btn <?= $m['role']==='admin' ? 'admin-btn' : '' ?>"
                         data-id="<?= $m['id'] ?>"
                         data-name="<?= htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-firstname="<?= htmlspecialchars($m['firstname'], ENT_QUOTES, 'UTF-8') ?>"
                         data-role="<?= $m['role'] ?>"
                         onclick="selectMember(this)">
                         <div class="member-avatar-lg" style="background:<?= $m['color'] ?>">
@@ -321,11 +331,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="pin-section" id="pinSection">
-                    <label for="password" id="passwordLabel">🔑 Mot de passe</label>
+                    <label for="password" id="passwordLabel">🔑 Mot de passe (votre prénom)</label>
                     <input type="password" id="password" name="password" class="pin-input"
-                           placeholder="Entrez votre mot de passe..." autocomplete="current-password" required>
+                           placeholder="Entrez votre prénom..." autocomplete="current-password" required>
                     <div id="passwordHint" style="font-size:12px;color:var(--text-muted);margin-top:8px;text-align:center">
-                        💡 Votre mot de passe est votre nom
+                        💡 Votre mot de passe est votre prénom
                     </div>
                 </div>
 
@@ -347,9 +357,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const id   = btn.dataset.id;
-        const name = btn.dataset.name;
-        const role = btn.dataset.role;
+        const id        = btn.dataset.id;
+        const name      = btn.dataset.name;
+        const firstname = btn.dataset.firstname;
+        const role      = btn.dataset.role;
 
         document.getElementById('member_id_input').value = id;
         document.getElementById('selectedName').textContent = name;
@@ -361,8 +372,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         pinSection.classList.add('visible');
         pwdInput.value = '';
-        pwdInput.placeholder = 'Entrez : ' + name;
-        pwdHint.innerHTML = '💡 Votre mot de passe est votre nom : <strong>' + name + '</strong>';
+        pwdInput.placeholder = 'Entrez : ' + firstname;
+        pwdHint.innerHTML = '💡 Votre mot de passe est votre prénom : <strong>' + firstname + '</strong>';
         document.getElementById('connectBtn').disabled = false;
         setTimeout(() => pwdInput.focus(), 60);
     }
