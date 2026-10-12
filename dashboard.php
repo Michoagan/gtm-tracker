@@ -295,33 +295,33 @@ $recentTasks = $db->query("
                 $catL = taskCategoryLabel($rt['category']);
             ?>
                 <tr>
-                    <td style="white-space:nowrap;color:#e2e8f0;font-size:13.5px;font-weight:500"><?= date('d/m/Y', strtotime($rt['task_date'])) ?></td>
+                    <td style="white-space:nowrap;color:#000000;font-size:13.5px;font-weight:600"><?= date('d/m/Y', strtotime($rt['task_date'])) ?></td>
                     <?php if($isAdm): ?>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px">
                             <div class="user-avatar" style="width:28px;height:28px;font-size:12px;font-weight:700"><?= strtoupper(substr($rt['user_name'],0,1)) ?></div>
-                            <span style="font-weight:700;font-size:13.5px;color:#ffffff"><?= htmlspecialchars(explode(' ',$rt['user_name'])[0],ENT_QUOTES,'UTF-8') ?></span>
+                            <span style="font-weight:700;font-size:13.5px;color:#000000"><?= htmlspecialchars(explode(' ',$rt['user_name'])[0],ENT_QUOTES,'UTF-8') ?></span>
                         </div>
                     </td>
                     <?php endif; ?>
                     <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL,ENT_QUOTES,'UTF-8') ?></span></td>
                     <td>
-                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" style="font-weight:700;font-size:14px;color:#ffffff;text-decoration:none">
+                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" style="font-weight:800;font-size:14px;color:#000000;text-decoration:none">
                             <?= htmlspecialchars($rt['title'], ENT_QUOTES, 'UTF-8') ?>
                         </a>
-                        <div style="font-size:12.5px;color:#cbd5e1;margin-top:3px">
+                        <div style="font-size:12.5px;color:#1e293b;margin-top:3px;font-weight:500">
                             <?php if(!empty($rt['due_date'])): ?>
-                                <span style="color:#fbbf24;font-weight:600;margin-right:8px">⏳ Échéance : <?= date('d/m', strtotime($rt['due_date'])) ?></span>
+                                <span style="color:#b45309;font-weight:700;margin-right:8px">⏳ Échéance : <?= date('d/m', strtotime($rt['due_date'])) ?></span>
                             <?php endif; ?>
                             <?php if(!empty($rt['started_at'])): ?>
-                                <span style="color:#38bdf8;font-weight:600;margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($rt['started_at'])) ?></span>
+                                <span style="color:#0369a1;font-weight:700;margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($rt['started_at'])) ?></span>
                             <?php endif; ?>
                             <?php if(!empty($rt['link_url'])): ?>
-                                <a href="<?= htmlspecialchars($rt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:600" title="Lien externe">🔗 Lien</a>
+                                <a href="<?= htmlspecialchars($rt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700" title="Lien externe">🔗 Lien</a>
                             <?php endif; ?>
                         </div>
                     </td>
-                    <td style="color:#ffffff;font-weight:700;font-size:13.5px"><?= ((float)$rt['hours_spent']>0)?number_format((float)$rt['hours_spent'],1,',',' ').' h':'—' ?></td>
+                    <td style="color:#000000;font-weight:800;font-size:14px"><?= ((float)$rt['hours_spent']>0)?number_format((float)$rt['hours_spent'],1,',',' ').' h':'—' ?></td>
                     <td style="min-width:145px">
                         <?php 
                             $rtNorm = mb_strtolower($rt['status'], 'UTF-8');
@@ -333,7 +333,7 @@ $recentTasks = $db->query("
                             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                             <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
                             <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
-                            <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#111827;border:1.5px solid <?= ($rtDone ? '#10b981' : ($rtNorm === 'en cours' ? '#6366f1' : ($rtNorm === 'bloquée' || $rtNorm === 'bloquee' ? '#ef4444' : '#94a3b8'))) ?>;color:#ffffff" title="Changer le statut en 1 clic">
+                            <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($rtDone ? '#059669' : ($rtNorm === 'en cours' ? '#4f46e5' : ($rtNorm === 'bloquée' || $rtNorm === 'bloquee' ? '#dc2626' : '#cbd5e1'))) ?>;color:#000000" title="Changer le statut en 1 clic">
                                 <option value="A faire" <?= ($rtNorm === 'a faire' || $rtNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
                                 <option value="En cours" <?= ($rtNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
                                 <option value="Terminée" <?= ($rtDone) ? 'selected' : '' ?>>🏁 Terminée</option>

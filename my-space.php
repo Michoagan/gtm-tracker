@@ -192,15 +192,15 @@ $staffProspects = $stmtPros->fetchAll();
                             <td>
                                 <strong><?= htmlspecialchars($f['prospect_name'] ?? 'Contact', ENT_QUOTES, 'UTF-8') ?></strong>
                                 <?php if ($f['company']): ?>
-                                    <span style="font-size:11px;color:var(--text-muted);display:block"><?= htmlspecialchars($f['company'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    <span style="font-size:11.5px;color:#1e293b;font-weight:600;display:block"><?= htmlspecialchars($f['company'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <span style="color:#fbbf24;font-weight:600;font-size:12.5px">
+                                <span style="color:#b45309;font-weight:700;font-size:13px">
                                     👉 <?= htmlspecialchars($f['next_action'], ENT_QUOTES, 'UTF-8') ?>
                                 </span>
                             </td>
-                            <td><span style="font-size:12px;color:var(--text-dim)"><?= date('d/m/Y', strtotime($f['conversation_date'])) ?></span></td>
+                            <td><span style="font-size:12.5px;color:#000000;font-weight:600"><?= date('d/m/Y', strtotime($f['conversation_date'])) ?></span></td>
                             <td style="text-align:right">
                                 <a href="/gtm-tracker/conversations/view.php?id=<?= $f['id'] ?>" class="btn btn-secondary btn-sm">Détail</a>
                             </td>
@@ -221,7 +221,7 @@ $staffProspects = $stmtPros->fetchAll();
         <?php if (empty($staffActions)): ?>
             <div class="empty-state">
                 <p>Aucune action enregistrée pour le moment.</p>
-                <?php if ($isAdm): ?><a href="/gtm-tracker/actions/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="margin-top:10px">+ Assigner une action</a><?php else: ?><span style="font-size:12px;color:var(--text-muted)">Aucune action assignée pour le moment.</span><?php endif; ?>
+                <?php if ($isAdm): ?><a href="/gtm-tracker/actions/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="margin-top:10px">+ Assigner une action</a><?php else: ?><span style="font-size:12px;color:#1e293b;font-weight:600">Aucune action assignée pour le moment.</span><?php endif; ?>
             </div>
         <?php else: ?>
             <div class="table-wrapper">
@@ -244,7 +244,7 @@ $staffProspects = $stmtPros->fetchAll();
                                 <?php if (!empty($a['assigned_by_name'])): ?>
                                     <span class="badge badge-purple" style="font-size:10px;padding:1px 6px;margin-left:6px">Donnée par Admin (<?= htmlspecialchars($a['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?>)</span>
                                 <?php endif; ?>
-                                <span style="font-size:11px;color:var(--text-dim);display:block"><?= date('d/m/Y', strtotime($a['action_date'])) ?></span>
+                                <span style="font-size:11.5px;color:#1e293b;font-weight:600;display:block"><?= date('d/m/Y', strtotime($a['action_date'])) ?></span>
                             </td>
                             <td><?= htmlspecialchars($a['channel_name'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
                             <td><span class="badge <?= priorityBadge($a['priority']) ?>"><?= htmlspecialchars($a['priority'], ENT_QUOTES, 'UTF-8') ?></span></td>
@@ -294,17 +294,17 @@ $staffProspects = $stmtPros->fetchAll();
                         $catL = taskCategoryLabel($st['category']);
                     ?>
                     <tr>
-                        <td style="color:var(--text-dim);font-size:12.5px"><?= date('d/m/Y', strtotime($st['task_date'])) ?></td>
+                        <td style="color:#000000;font-weight:600;font-size:13px"><?= date('d/m/Y', strtotime($st['task_date'])) ?></td>
                         <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL, ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td>
-                            <a href="/gtm-tracker/tasks/view.php?id=<?= $st['id'] ?>" style="font-weight:600">
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $st['id'] ?>" style="font-weight:700;color:#000000;text-decoration:none">
                                 <?= htmlspecialchars($st['title'], ENT_QUOTES, 'UTF-8') ?>
                             </a>
                             <?php if (!empty($st['link_url'])): ?>
-                                <a href="<?= htmlspecialchars($st['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="font-size:11px;color:var(--info);margin-left:6px" title="Lien externe">🔗</a>
+                                <a href="<?= htmlspecialchars($st['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="font-size:11px;color:#2563eb;margin-left:6px" title="Lien externe">🔗</a>
                             <?php endif; ?>
                         </td>
-                        <td style="font-weight:600;color:var(--text-muted);font-size:12.5px"><?= ((float)$st['hours_spent'] > 0) ? number_format((float)$st['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
+                        <td style="font-weight:800;color:#000000;font-size:13.5px"><?= ((float)$st['hours_spent'] > 0) ? number_format((float)$st['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
                         <td><span class="badge <?= statusBadge($st['status']) ?>"><?= htmlspecialchars($st['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td style="text-align:right">
                             <a href="/gtm-tracker/tasks/view.php?id=<?= $st['id'] ?>" class="btn btn-secondary btn-sm" style="padding:4px 8px">👁️ Détails</a>

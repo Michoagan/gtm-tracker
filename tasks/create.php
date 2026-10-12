@@ -121,20 +121,20 @@ $preCategory = isset($_GET['category']) ? trim($_GET['category']) : 'tech';
 
                 <!-- Description / Détails techniques -->
                 <div class="form-group form-full">
-                    <label class="form-label" style="font-size:14px;font-weight:700;color:#ffffff">
+                    <label class="form-label" style="font-size:14px;font-weight:700;color:#000000">
                         📋 Détails du travail à effectuer / Spécifications techniques
                     </label>
-                    <textarea name="description" class="form-control" rows="5" style="background:#090d16;color:#ffffff;font-size:15px;line-height:1.6;border:1.5px solid rgba(255,255,255,0.25);border-radius:8px;padding:14px 16px" placeholder="Détaillez le travail : technologies utilisées, modules modifiés, étapes à réaliser, architecture, consignes..."></textarea>
-                    <span class="form-hint" style="font-size:13px;color:#cbd5e1">Consignes et spécifications précises pour le collaborateur.</span>
+                    <textarea name="description" class="form-control" rows="5" style="background:#ffffff;color:#000000;font-size:15px;line-height:1.6;border:1.5px solid #cbd5e1;border-radius:8px;padding:14px 16px" placeholder="Détaillez le travail : technologies utilisées, modules modifiés, étapes à réaliser, architecture, consignes..."></textarea>
+                    <span class="form-hint" style="font-size:13px;color:#1e293b;font-weight:500">Consignes et spécifications précises pour le collaborateur.</span>
                 </div>
 
                 <!-- Résultat / Livrable -->
                 <div class="form-group form-full">
-                    <label class="form-label" style="font-size:14px;font-weight:700;color:#ffffff">
+                    <label class="form-label" style="font-size:14px;font-weight:700;color:#000000">
                         🎯 Résultat attendu / Livrable final
                     </label>
-                    <textarea name="result" class="form-control" rows="3" style="background:#090d16;color:#ffffff;font-size:15px;line-height:1.6;border:1.5px solid rgba(255,255,255,0.25);border-radius:8px;padding:14px 16px" placeholder="Ex: PR GitHub validée, écran responsive livré sur staging, base migrée..."></textarea>
-                    <span class="form-hint" style="font-size:13px;color:#cbd5e1">Ce qui confirmera que la mission est complétée avec succès.</span>
+                    <textarea name="result" class="form-control" rows="3" style="background:#ffffff;color:#000000;font-size:15px;line-height:1.6;border:1.5px solid #cbd5e1;border-radius:8px;padding:14px 16px" placeholder="Ex: PR GitHub validée, écran responsive livré sur staging, base migrée..."></textarea>
+                    <span class="form-hint" style="font-size:13px;color:#1e293b;font-weight:500">Ce qui confirmera que la mission est complétée avec succès.</span>
                 </div>
 
                 <!-- Pièce jointe / Capture d'écran -->

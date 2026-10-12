@@ -84,30 +84,30 @@ $rateConv = $totalConv > 0 ? round(($totalConvert/$totalConv)*100,1) : 0;
 ?>
 
 <!-- Tasks & Solutions KPI Grid -->
-<div style="margin-bottom:24px;background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06));border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius-lg);padding:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="font-size:16px;font-weight:700;color:var(--text-main);margin:0">
+<div style="margin-bottom:24px;background:#ffffff;border:1.5px solid #cbd5e1;border-radius:var(--radius-lg);padding:22px;box-shadow:var(--w-shadow-sm)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h3 style="font-size:17px;font-weight:800;color:#000000;margin:0">
             💻 Bilan Tâches Effectuées &amp; Développements Solutions
         </h3>
         <span class="badge badge-purple"><?= (int)$totalTechTasks ?> tâches Tech / Solutions</span>
     </div>
     <div class="stats-grid" style="margin-bottom:0">
-        <div class="stat-card" style="--card-color:#8b5cf6;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#8b5cf6">
             <div class="stat-label">Tâches totales</div>
             <div class="stat-value"><?= (int)$totalTasksReport ?></div>
             <div class="stat-sub"><?= (int)$totalTasksDone ?> terminées</div>
         </div>
-        <div class="stat-card" style="--card-color:#10b981;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#10b981">
             <div class="stat-label">Taux d'achèvement</div>
             <div class="stat-value"><?= $totalTasksReport > 0 ? round(($totalTasksDone / $totalTasksReport) * 100) : 0 ?>%</div>
             <div class="stat-sub">Sur la période</div>
         </div>
-        <div class="stat-card" style="--card-color:#a855f7;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#a855f7">
             <div class="stat-label">Développement Tech</div>
             <div class="stat-value"><?= (int)$totalTechTasks ?></div>
             <div class="stat-sub">Code, API &amp; Infra</div>
         </div>
-        <div class="stat-card" style="--card-color:#f59e0b;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#f59e0b">
             <div class="stat-label">Heures investies</div>
             <div class="stat-value"><?= number_format((float)$totalHoursReport, 1, ',', ' ') ?> h</div>
             <div class="stat-sub">Temps cumulé</div>

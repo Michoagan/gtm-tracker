@@ -141,37 +141,37 @@ $myTasks = $stmtMyTasks->fetchAll();
                         $stNorm = mb_strtolower($mt['status'], 'UTF-8');
                     ?>
                     <tr>
-                        <td style="color:#e2e8f0;font-size:13.5px;font-weight:500;white-space:nowrap">
+                        <td style="color:#000000;font-size:13.5px;font-weight:600;white-space:nowrap">
                             <?= date('d/m/Y', strtotime($mt['task_date'])) ?>
                             <?php if (!empty($mt['due_date'])): ?>
-                                <div style="font-size:12px;color:#fbbf24;font-weight:600">⏳ Échéance : <?= date('d/m', strtotime($mt['due_date'])) ?></div>
+                                <div style="font-size:12px;color:#b45309;font-weight:700">⏳ Échéance : <?= date('d/m', strtotime($mt['due_date'])) ?></div>
                             <?php endif; ?>
                         </td>
                         <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL, ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td>
-                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" style="font-weight:700;font-size:14px;color:#ffffff;text-decoration:none">
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" style="font-weight:800;font-size:14px;color:#000000;text-decoration:none">
                                 <?= htmlspecialchars($mt['title'], ENT_QUOTES, 'UTF-8') ?>
                             </a>
-                            <div style="font-size:12.5px;color:#cbd5e1;margin-top:3px">
+                            <div style="font-size:12.5px;color:#1e293b;margin-top:3px;font-weight:500">
                                 <?php if (!empty($mt['started_at'])): ?>
-                                    <span style="color:#38bdf8;font-weight:600;margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($mt['started_at'])) ?></span>
+                                    <span style="color:#0369a1;font-weight:700;margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($mt['started_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($mt['completed_at'])): ?>
-                                    <span style="color:#34d399;font-weight:600;margin-right:8px">🏁 Fin : <?= date('d/m H:i', strtotime($mt['completed_at'])) ?></span>
+                                    <span style="color:#047857;font-weight:700;margin-right:8px">🏁 Fin : <?= date('d/m H:i', strtotime($mt['completed_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($mt['link_url'])): ?>
-                                    <a href="<?= htmlspecialchars($mt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:600" title="Lien externe">🔗 Lien</a>
+                                    <a href="<?= htmlspecialchars($mt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700" title="Lien externe">🔗 Lien</a>
                                 <?php endif; ?>
                             </div>
                         </td>
-                        <td style="font-weight:700;color:#ffffff;font-size:13.5px"><?= ((float)$mt['hours_spent'] > 0) ? number_format((float)$mt['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
+                        <td style="font-weight:800;color:#000000;font-size:14px"><?= ((float)$mt['hours_spent'] > 0) ? number_format((float)$mt['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
                         <td style="min-width:145px">
                             <?php $mtDone = in_array($stNorm, ['terminée', 'terminee', 'termine']); ?>
                             <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
                                 <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                 <input type="hidden" name="task_id" value="<?= $mt['id'] ?>">
                                 <input type="hidden" name="redirect" value="/gtm-tracker/my-activities.php">
-                                <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#111827;border:1.5px solid <?= ($mtDone ? '#10b981' : ($stNorm === 'en cours' ? '#6366f1' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#ef4444' : '#94a3b8'))) ?>;color:#ffffff" title="Changer le statut en 1 clic">
+                                <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($mtDone ? '#059669' : ($stNorm === 'en cours' ? '#4f46e5' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#dc2626' : '#cbd5e1'))) ?>;color:#000000" title="Changer le statut en 1 clic">
                                     <option value="A faire" <?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
                                     <option value="En cours" <?= ($stNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
                                     <option value="Terminée" <?= ($mtDone) ? 'selected' : '' ?>>🏁 Terminée</option>

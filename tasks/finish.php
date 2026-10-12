@@ -142,17 +142,17 @@ $suggestedHours = round($diffSeconds / 3600, 2);
 <div class="card" style="max-width:700px;margin:0 auto">
     <div class="card-body" style="padding:28px">
         <!-- Résumé de la tâche -->
-        <div style="padding:16px;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:24px">
-            <div style="font-size:12px;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin-bottom:4px">Tâche à finaliser</div>
-            <div style="font-size:16px;font-weight:700;color:var(--text-main);margin-bottom:8px">
+        <div style="padding:16px 20px;background:#f8fafc;border-radius:10px;border:1.5px solid #cbd5e1;margin-bottom:24px">
+            <div style="font-size:12px;color:#000000;text-transform:uppercase;font-weight:800;letter-spacing:0.04em;margin-bottom:4px">Tâche à finaliser</div>
+            <div style="font-size:17px;font-weight:800;color:#000000;margin-bottom:8px">
                 <?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?>
             </div>
-            <div style="display:flex;gap:12px;font-size:12.5px;color:var(--text-muted);flex-wrap:wrap">
-                <span>👤 Réalisé par : <strong><?= htmlspecialchars($task['user_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
+            <div style="display:flex;gap:12px;font-size:13px;color:#1e293b;flex-wrap:wrap;font-weight:500">
+                <span>👤 Réalisé par : <strong style="color:#000000"><?= htmlspecialchars($task['user_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
                 <?php if (!empty($task['started_at'])): ?>
-                    <span>⏱️ Démarrée le : <strong><?= date('d/m/Y à H:i', strtotime($task['started_at'])) ?></strong></span>
+                    <span>⏱️ Démarrée le : <strong style="color:#000000"><?= date('d/m/Y à H:i', strtotime($task['started_at'])) ?></strong></span>
                 <?php endif; ?>
-                <span style="color:#10b981">⌛ Durée écoulée estimée : <strong><?= ($hours > 0 ? "{$hours}h " : "") . "{$mins}min" ?></strong></span>
+                <span style="color:#047857;font-weight:700">⌛ Durée écoulée estimée : <strong><?= ($hours > 0 ? "{$hours}h " : "") . "{$mins}min" ?></strong></span>
             </div>
         </div>
 

@@ -99,7 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="apple-touch-icon" sizes="512x512" href="/gtm-tracker/icon-512.png">
     <link rel="icon" type="image/svg+xml" href="/gtm-tracker/icon.svg">
     <link rel="icon" type="image/png" sizes="192x192" href="/gtm-tracker/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/gtm-tracker/icon-512.png">
     <link rel="stylesheet" href="/gtm-tracker/css/style.css">
     <style>
         .login-body {
@@ -107,9 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.15) 0%, transparent 60%),
-                        radial-gradient(ellipse at 80% 20%, rgba(34,197,94,0.1) 0%, transparent 50%),
-                        var(--bg-base);
+            background: radial-gradient(600px 400px at 15% 15%, rgba(99, 102, 241, 0.12), transparent 65%),
+                        radial-gradient(560px 380px at 88% 22%, rgba(168, 85, 247, 0.10), transparent 65%),
+                        #ffffff;
             padding: 20px;
             font-family: 'Inter', sans-serif;
         }
@@ -119,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .login-logo-zone {
             text-align: center;
-            margin-bottom: 36px;
+            margin-bottom: 28px;
         }
         .login-logo-icon {
             width: 64px; height: 64px;
@@ -127,32 +126,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 18px;
             display: inline-flex; align-items: center; justify-content: center;
             margin-bottom: 16px;
-            box-shadow: 0 8px 32px rgba(99,102,241,0.4);
+            box-shadow: 0 8px 32px rgba(99,102,241,0.3);
         }
         .login-logo-icon svg { color: white; }
         .login-app-name {
             font-size: 28px; font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            background: linear-gradient(135deg, #000000 0%, #4338ca 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
             margin: 0 0 6px;
         }
         .login-app-sub {
-            font-size: 15px; color: #cbd5e1; margin: 0; font-weight: 500;
+            font-size: 15px; color: #1e293b; margin: 0; font-weight: 600;
         }
         .login-card-new {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-hover);
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
             border-radius: 20px;
             padding: 32px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(15,23,42,0.08);
         }
         .login-card-title {
-            font-size: 18px; font-weight: 700; color: #ffffff;
+            font-size: 18px; font-weight: 800; color: #000000;
             margin: 0 0 6px;
         }
         .login-card-desc {
-            font-size: 14px; color: #cbd5e1;
+            font-size: 14px; color: #1e293b; font-weight: 500;
             margin: 0 0 24px;
         }
         .member-grid {
@@ -163,8 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .member-btn {
             position: relative;
-            background: var(--bg-elevated);
-            border: 2px solid var(--border);
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
             border-radius: 14px;
             padding: 20px 16px;
             cursor: pointer;
@@ -175,39 +174,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .member-btn:hover {
             transform: translateY(-3px);
-            border-color: rgba(255,255,255,0.3);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            border-color: #6366f1;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(99,102,241,0.18);
         }
         .member-btn.admin-btn {
-            border-color: rgba(239,68,68,0.4);
-            background: rgba(239,68,68,0.08);
+            border-color: #fecaca;
+            background: #fef2f2;
         }
         .member-btn.admin-btn:hover {
             border-color: #ef4444;
-            background: rgba(239,68,68,0.15);
-            box-shadow: 0 12px 32px rgba(239,68,68,0.25);
+            background: #fee2e2;
+            box-shadow: 0 8px 24px rgba(239,68,68,0.18);
         }
         .member-btn.active {
             border-color: var(--primary);
-            background: rgba(99,102,241,0.15);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.3);
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
         }
         .member-avatar-lg {
             width: 52px; height: 52px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; font-weight: 700; color: white;
+            font-size: 18px; font-weight: 800; color: white;
             letter-spacing: 0.5px;
         }
         .member-name {
-            font-size: 13.5px; font-weight: 700;
-            color: #ffffff;
+            font-size: 14px; font-weight: 800;
+            color: #000000;
             line-height: 1.3;
         }
         .member-role-tag {
             font-size: 12px;
-            color: #cbd5e1;
-            font-weight: 600;
+            color: #1e293b;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -215,24 +215,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: none;
             margin-top: 20px;
             padding: 20px;
-            background: rgba(99,102,241,0.1);
-            border: 1px solid rgba(99,102,241,0.35);
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
             border-radius: 14px;
         }
         .pin-section.visible { display: block; }
         .pin-section label {
             display: block; font-size: 14px;
-            font-weight: 700; color: #ffffff;
+            font-weight: 800; color: #000000;
             margin-bottom: 8px;
         }
         .pin-input {
             width: 100%; padding: 13px 16px;
-            background: #0d1322;
-            border: 1px solid var(--border-strong);
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
             border-radius: 10px;
-            color: #ffffff;
+            color: #000000;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             font-family: 'Inter', sans-serif;
             text-align: center;
             box-sizing: border-box;
@@ -241,7 +241,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .pin-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+            color: #000000;
         }
         .divider { height: 1px; background: var(--border); margin: 24px 0; }
         .connect-btn {

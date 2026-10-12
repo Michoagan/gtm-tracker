@@ -250,7 +250,7 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                         $isDone = in_array(mb_strtolower($t['status'], 'UTF-8'), ['terminée', 'terminee', 'termine']);
                     ?>
                     <tr>
-                        <td style="white-space:nowrap;color:#e2e8f0;font-size:13.5px;font-weight:500">
+                        <td style="white-space:nowrap;color:#000000;font-size:13.5px;font-weight:600">
                             <?= date('d/m/Y', strtotime($t['task_date'])) ?>
                         </td>
                         <td>
@@ -258,7 +258,7 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                                 <div class="user-avatar" style="width:30px;height:30px;font-size:12px;font-weight:700">
                                     <?= strtoupper(substr($t['user_name'], 0, 1)) ?>
                                 </div>
-                                <span style="font-weight:700;font-size:13.5px;color:#ffffff">
+                                <span style="font-weight:700;font-size:13.5px;color:#000000">
                                     <?= htmlspecialchars(explode(' ', $t['user_name'])[0], ENT_QUOTES, 'UTF-8') ?>
                                 </span>
                             </div>
@@ -270,44 +270,44 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                         </td>
                         <td>
                             <div style="font-weight:700;font-size:14.5px;margin-bottom:4px">
-                                <a href="/gtm-tracker/tasks/view.php?id=<?= $t['id'] ?>" style="color:#ffffff;text-decoration:none">
+                                <a href="/gtm-tracker/tasks/view.php?id=<?= $t['id'] ?>" style="color:#000000;text-decoration:none;font-weight:800">
                                     <?= htmlspecialchars($t['title'], ENT_QUOTES, 'UTF-8') ?>
                                 </a>
                             </div>
                             <?php if (!empty($t['description'])): ?>
-                                <div style="font-size:13px;color:#cbd5e1;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                                <div style="font-size:13px;color:#1e293b;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500">
                                     <?= htmlspecialchars($t['description'], ENT_QUOTES, 'UTF-8') ?>
                                 </div>
                             <?php endif; ?>
                             <?php if (!empty($t['result'])): ?>
-                                <div style="font-size:12.5px;color:#34d399;margin-top:3px;font-weight:500">
+                                <div style="font-size:12.5px;color:#065f46;margin-top:3px;font-weight:600">
                                     🎯 <em>Livrable : <?= htmlspecialchars(mb_substr($t['result'], 0, 80), ENT_QUOTES, 'UTF-8') ?><?= mb_strlen($t['result']) > 80 ? '...' : '' ?></em>
                                 </div>
                             <?php endif; ?>
-                            <div style="display:flex;gap:12px;margin-top:5px;font-size:12.5px;color:#cbd5e1;flex-wrap:wrap">
+                            <div style="display:flex;gap:12px;margin-top:5px;font-size:12.5px;color:#1e293b;flex-wrap:wrap">
                                 <?php if (!empty($t['assigned_by_name'])): ?>
-                                    <span style="color:#a5b4fc;font-weight:600">👤 Donnée par <?= htmlspecialchars($t['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    <span style="color:#4338ca;font-weight:700">👤 Donnée par <?= htmlspecialchars($t['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['due_date'])): ?>
-                                    <span style="color:#fbbf24;font-weight:600">⏳ Échéance : <?= date('d/m/Y', strtotime($t['due_date'])) ?></span>
+                                    <span style="color:#b45309;font-weight:700">⏳ Échéance : <?= date('d/m/Y', strtotime($t['due_date'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['started_at'])): ?>
-                                    <span style="color:#38bdf8;font-weight:600">▶️ Début : <?= date('d/m à H:i', strtotime($t['started_at'])) ?></span>
+                                    <span style="color:#0369a1;font-weight:700">▶️ Début : <?= date('d/m à H:i', strtotime($t['started_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['completed_at'])): ?>
-                                    <span style="color:#34d399;font-weight:600">🏁 Fin : <?= date('d/m à H:i', strtotime($t['completed_at'])) ?></span>
+                                    <span style="color:#047857;font-weight:700">🏁 Fin : <?= date('d/m à H:i', strtotime($t['completed_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['link_url'])): ?>
-                                    <a href="<?= htmlspecialchars($t['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#38bdf8;display:inline-flex;align-items:center;gap:3px;font-weight:600">
+                                    <a href="<?= htmlspecialchars($t['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#2563eb;display:inline-flex;align-items:center;gap:3px;font-weight:700">
                                         🔗 Lien externe ↗
                                     </a>
                                 <?php endif; ?>
                                 <?php if ($t['attachments_count'] > 0): ?>
-                                    <span style="color:#e2e8f0;font-weight:500">📎 <?= $t['attachments_count'] ?> pièce(s)</span>
+                                    <span style="color:#1e293b;font-weight:600">📎 <?= $t['attachments_count'] ?> pièce(s)</span>
                                 <?php endif; ?>
                             </div>
                         </td>
-                        <td style="white-space:nowrap;font-weight:700;font-size:13.5px;color:#ffffff">
+                        <td style="white-space:nowrap;font-weight:800;font-size:14px;color:#000000">
                             <?= ((float)$t['hours_spent'] > 0) ? number_format((float)$t['hours_spent'], 1, ',', ' ') . ' h' : '—' ?>
                         </td>
                         <td style="min-width:160px">
@@ -322,7 +322,7 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                                         <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                         <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
                                         <input type="hidden" name="redirect" value="/gtm-tracker/tasks/index.php?<?= htmlspecialchars(http_build_query($_GET), ENT_QUOTES, 'UTF-8') ?>">
-                                        <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:6px 28px 6px 10px;font-size:12.5px;font-weight:700;border-radius:20px;height:auto;cursor:pointer;background-color:#111827;border:1.5px solid <?= ($isDone ? '#10b981' : ($stNorm === 'en cours' ? '#6366f1' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#ef4444' : '#94a3b8'))) ?>;color:#ffffff" title="Changer le statut de la tâche">
+                                        <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:6px 28px 6px 10px;font-size:12.5px;font-weight:700;border-radius:20px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($isDone ? '#059669' : ($stNorm === 'en cours' ? '#4f46e5' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#dc2626' : '#cbd5e1'))) ?>;color:#000000" title="Changer le statut de la tâche">
                                             <option value="A faire" <?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
                                             <option value="En cours" <?= ($stNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
                                             <option value="Terminée" <?= ($isDone) ? 'selected' : '' ?>>🏁 Terminée</option>
