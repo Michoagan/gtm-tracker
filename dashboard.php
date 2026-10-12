@@ -322,26 +322,46 @@ $recentTasks = $db->query("
                         </div>
                     </td>
                     <td style="color:#ffffff;font-weight:700;font-size:13.5px"><?= ((float)$rt['hours_spent']>0)?number_format((float)$rt['hours_spent'],1,',',' ').' h':'—' ?></td>
-                    <td>
-                        <?php $rtNorm = mb_strtolower($rt['status'], 'UTF-8'); ?>
+                    <td style="min-width:145px">
+                        <?php 
+                            $rtNorm = mb_strtolower($rt['status'], 'UTF-8');
+                            $rtDone = in_array($rtNorm, ['terminée', 'terminee', 'termine']);
+                            $rtCanManage = ($isAdm || (int)$rt['user_id'] === $uid);
+                        ?>
+                        <?php if ($rtCanManage): ?>
+                        <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
+                            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                            <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
+                            <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
+                            <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#111827;border:1.5px solid <?= ($rtDone ? '#10b981' : ($rtNorm === 'en cours' ? '#6366f1' : ($rtNorm === 'bloquée' || $rtNorm === 'bloquee' ? '#ef4444' : '#94a3b8'))) ?>;color:#ffffff" title="Changer le statut en 1 clic">
+                                <option value="A faire" <?= ($rtNorm === 'a faire' || $rtNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
+                                <option value="En cours" <?= ($rtNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
+                                <option value="Terminée" <?= ($rtDone) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                <option value="Bloquée" <?= ($rtNorm === 'bloquée' || $rtNorm === 'bloquee') ? 'selected' : '' ?>>🛑 Bloquée</option>
+                            </select>
+                        </form>
+                        <?php else: ?>
                         <span class="badge <?= statusBadge($rt['status']) ?>"><?= htmlspecialchars($rt['status'],ENT_QUOTES,'UTF-8') ?></span>
+                        <?php endif; ?>
                     </td>
                     <td style="text-align:right;white-space:nowrap">
-                        <?php if ($rtNorm === 'a faire' || $rtNorm === 'à faire'): ?>
-                            <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline;margin:0">
-                                <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-                                <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
-                                <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
-                                <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:2px 7px;font-size:11px;font-weight:700" title="Commencer cette tâche">
-                                    ▶️ Démarrer
-                                </button>
-                            </form>
-                        <?php elseif ($rtNorm === 'en cours'): ?>
-                            <a href="/gtm-tracker/tasks/finish.php?id=<?= $rt['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:2px 7px;font-size:11px;font-weight:700" title="Terminer cette tâche">
-                                🏁 Terminer
-                            </a>
+                        <?php if ($rtCanManage): ?>
+                            <?php if ($rtNorm === 'a faire' || $rtNorm === 'à faire'): ?>
+                                <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline;margin:0">
+                                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                    <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
+                                    <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
+                                    <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:3px 9px;font-size:11.5px;font-weight:700;border-radius:5px" title="Commencer cette tâche">
+                                        ▶️ Démarrer
+                                    </button>
+                                </form>
+                            <?php elseif ($rtNorm === 'en cours'): ?>
+                                <a href="/gtm-tracker/tasks/finish.php?id=<?= $rt['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:3px 9px;font-size:11.5px;font-weight:700;border-radius:5px;text-decoration:none" title="Terminer cette tâche">
+                                    🏁 Terminer
+                                </a>
+                            <?php endif; ?>
                         <?php endif; ?>
-                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" class="btn btn-secondary btn-sm" style="padding:3px 7px">👁️</a>
+                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" class="btn btn-secondary btn-sm" style="padding:4px 8px" title="Voir la tâche">👁️</a>
                     </td>
                 </tr>
             <?php endforeach; ?>

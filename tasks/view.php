@@ -36,7 +36,8 @@ $isOwner = ((int)$task['user_id'] === $uid);
 $canManage = ($isOwner || $isAdm);
 $catBadge = taskCategoryBadge($task['category']);
 $catLabel = taskCategoryLabel($task['category']);
-$isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'terminee', 'termine']);
+$stNorm = mb_strtolower($task['status'], 'UTF-8');
+$isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
 ?>
 
 <div class="page-header">
@@ -109,6 +110,84 @@ $isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'termi
         <?= htmlspecialchars($_SESSION['flash']['message'], ENT_QUOTES, 'UTF-8') ?>
     </div>
     <?php unset($_SESSION['flash']); ?>
+<?php endif; ?>
+
+<!-- BANDEAU INTERACTIF : CHANGER LE STATUT DE LA TÂCHE EN 1 CLIC -->
+<?php if ($canManage): ?>
+<div class="card" style="margin-bottom:24px;border:2px solid #6366f1;background:linear-gradient(135deg, rgba(99,102,241,0.12), rgba(16,185,129,0.06));border-radius:16px;padding:22px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.35)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:26px">⚡</span>
+            <div>
+                <div style="font-size:12px;color:#a5b4fc;font-weight:800;text-transform:uppercase;letter-spacing:0.08em">
+                    GESTION DU STATUT — CLIQUEZ SUR UN STATUT POUR LE CHANGER
+                </div>
+                <div style="font-size:18px;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:10px;margin-top:2px">
+                    Statut actuel : <span class="badge <?= statusBadge($task['status']) ?>" style="font-size:14px;padding:5px 14px;font-weight:700"><?= htmlspecialchars($task['status'], ENT_QUOTES, 'UTF-8') ?></span>
+                </div>
+            </div>
+        </div>
+        <div style="font-size:13px;color:#cbd5e1;font-weight:500">
+            👉 <em>Cliquez sur le statut souhaité ci-dessous :</em>
+        </div>
+    </div>
+
+    <!-- 4 BOUTONS D'ACTION DIRECTE DU WORKFLOW -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:12px">
+        <!-- 1. À FAIRE -->
+        <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
+            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+            <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+            <input type="hidden" name="new_status" value="A faire">
+            <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+            <button type="submit" class="btn btn-full" style="padding:14px 16px;font-size:14px;font-weight:700;border-radius:10px;justify-content:flex-start;gap:12px;cursor:pointer;<?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? 'background:#334155;color:#ffffff;border:2.5px solid #94a3b8;box-shadow:0 0 16px rgba(255,255,255,0.25)' : 'background:#131c2e;color:#cbd5e1;border:1.5px solid rgba(255,255,255,0.12)' ?>">
+                <span style="font-size:22px">⏳</span>
+                <div style="text-align:left">
+                    <div style="font-weight:800;font-size:14.5px">1. À faire</div>
+                    <div style="font-size:12px;opacity:0.85"><?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? '● Actuellement sélectionné' : 'Mettre en attente' ?></div>
+                </div>
+            </button>
+        </form>
+
+        <!-- 2. EN COURS (DÉMARRER) -->
+        <form method="POST" action="/gtm-tracker/tasks/start.php" style="margin:0">
+            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+            <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+            <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+            <button type="submit" class="btn btn-full" style="padding:14px 16px;font-size:14px;font-weight:700;border-radius:10px;justify-content:flex-start;gap:12px;cursor:pointer;<?= ($stNorm === 'en cours') ? 'background:#4338ca;color:#ffffff;border:2.5px solid #818cf8;box-shadow:0 0 20px rgba(99,102,241,0.5)' : 'background:#131c2e;color:#cbd5e1;border:1.5px solid rgba(99,102,241,0.3)' ?>">
+                <span style="font-size:22px">⚡</span>
+                <div style="text-align:left">
+                    <div style="font-weight:800;font-size:14.5px">2. En cours</div>
+                    <div style="font-size:12px;opacity:0.85"><?= ($stNorm === 'en cours') ? '● Tâche démarrée' : '▶️ Commencer / Démarrer' ?></div>
+                </div>
+            </button>
+        </form>
+
+        <!-- 3. TERMINÉE (FINALISER) -->
+        <a href="/gtm-tracker/tasks/finish.php?id=<?= $task['id'] ?>" class="btn btn-full" style="padding:14px 16px;font-size:14px;font-weight:700;border-radius:10px;justify-content:flex-start;gap:12px;text-decoration:none;cursor:pointer;<?= ($isDone) ? 'background:#065f46;color:#ffffff;border:2.5px solid #34d399;box-shadow:0 0 20px rgba(16,185,129,0.5)' : 'background:#131c2e;color:#cbd5e1;border:1.5px solid rgba(16,185,129,0.35)' ?>">
+            <span style="font-size:22px">🏁</span>
+            <div style="text-align:left">
+                <div style="font-weight:800;font-size:14.5px">3. Terminée</div>
+                <div style="font-size:12px;opacity:0.85"><?= ($isDone) ? '● Tâche terminée' : '🏁 Marquer fin & livrable' ?></div>
+            </div>
+        </a>
+
+        <!-- 4. BLOQUÉE -->
+        <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
+            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+            <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+            <input type="hidden" name="new_status" value="Bloquée">
+            <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+            <button type="submit" class="btn btn-full" style="padding:14px 16px;font-size:14px;font-weight:700;border-radius:10px;justify-content:flex-start;gap:12px;cursor:pointer;<?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? 'background:#7f1d1d;color:#ffffff;border:2.5px solid #f87171;box-shadow:0 0 20px rgba(239,68,68,0.5)' : 'background:#131c2e;color:#cbd5e1;border:1.5px solid rgba(239,68,68,0.3)' ?>">
+                <span style="font-size:22px">🛑</span>
+                <div style="text-align:left">
+                    <div style="font-weight:800;font-size:14.5px">Bloquée</div>
+                    <div style="font-size:12px;opacity:0.85"><?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? '● Tâche bloquée' : 'Signaler un problème' ?></div>
+                </div>
+            </button>
+        </form>
+    </div>
+</div>
 <?php endif; ?>
 
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">

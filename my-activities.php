@@ -165,23 +165,36 @@ $myTasks = $stmtMyTasks->fetchAll();
                             </div>
                         </td>
                         <td style="font-weight:700;color:#ffffff;font-size:13.5px"><?= ((float)$mt['hours_spent'] > 0) ? number_format((float)$mt['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
-                        <td><span class="badge <?= statusBadge($mt['status']) ?>"><?= htmlspecialchars($mt['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td style="min-width:145px">
+                            <?php $mtDone = in_array($stNorm, ['terminée', 'terminee', 'termine']); ?>
+                            <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
+                                <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                <input type="hidden" name="task_id" value="<?= $mt['id'] ?>">
+                                <input type="hidden" name="redirect" value="/gtm-tracker/my-activities.php">
+                                <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#111827;border:1.5px solid <?= ($mtDone ? '#10b981' : ($stNorm === 'en cours' ? '#6366f1' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#ef4444' : '#94a3b8'))) ?>;color:#ffffff" title="Changer le statut en 1 clic">
+                                    <option value="A faire" <?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
+                                    <option value="En cours" <?= ($stNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
+                                    <option value="Terminée" <?= ($mtDone) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                    <option value="Bloquée" <?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? 'selected' : '' ?>>🛑 Bloquée</option>
+                                </select>
+                            </form>
+                        </td>
                         <td style="text-align:right;white-space:nowrap">
                             <?php if ($stNorm === 'a faire' || $stNorm === 'à faire'): ?>
                                 <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline;margin:0">
                                     <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                     <input type="hidden" name="task_id" value="<?= $mt['id'] ?>">
                                     <input type="hidden" name="redirect" value="/gtm-tracker/my-activities.php">
-                                    <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:3px 8px;font-size:11px;font-weight:700" title="Commencer cette tâche">
+                                    <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:3px 9px;font-size:11.5px;font-weight:700;border-radius:5px" title="Commencer cette tâche">
                                         ▶️ Démarrer
                                     </button>
                                 </form>
                             <?php elseif ($stNorm === 'en cours'): ?>
-                                <a href="/gtm-tracker/tasks/finish.php?id=<?= $mt['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:3px 8px;font-size:11px;font-weight:700" title="Terminer cette tâche">
+                                <a href="/gtm-tracker/tasks/finish.php?id=<?= $mt['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:3px 9px;font-size:11.5px;font-weight:700;border-radius:5px;text-decoration:none" title="Terminer cette tâche">
                                     🏁 Terminer
                                 </a>
                             <?php endif; ?>
-                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" class="btn btn-secondary btn-sm" style="padding:3px 7px" title="Voir les détails">👁️</a>
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" class="btn btn-secondary btn-sm" style="padding:4px 8px" title="Voir les détails">👁️</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

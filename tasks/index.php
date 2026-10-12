@@ -310,37 +310,45 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                         <td style="white-space:nowrap;font-weight:700;font-size:13.5px;color:#ffffff">
                             <?= ((float)$t['hours_spent'] > 0) ? number_format((float)$t['hours_spent'], 1, ',', ' ') . ' h' : '—' ?>
                         </td>
-                        <td>
+                        <td style="min-width:160px">
                             <?php 
                                 $stNorm = mb_strtolower($t['status'], 'UTF-8');
+                                $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
                             ?>
-                            <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
-                                <span class="badge <?= statusBadge($t['status']) ?>">
-                                    <?= htmlspecialchars($t['status'], ENT_QUOTES, 'UTF-8') ?>
-                                </span>
-
+                            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
                                 <?php if ($canManage): ?>
+                                    <!-- Sélecteur de statut direct en 1 clic -->
+                                    <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0;width:100%">
+                                        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                        <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
+                                        <input type="hidden" name="redirect" value="/gtm-tracker/tasks/index.php?<?= htmlspecialchars(http_build_query($_GET), ENT_QUOTES, 'UTF-8') ?>">
+                                        <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:6px 28px 6px 10px;font-size:12.5px;font-weight:700;border-radius:20px;height:auto;cursor:pointer;background-color:#111827;border:1.5px solid <?= ($isDone ? '#10b981' : ($stNorm === 'en cours' ? '#6366f1' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#ef4444' : '#94a3b8'))) ?>;color:#ffffff" title="Changer le statut de la tâche">
+                                            <option value="A faire" <?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
+                                            <option value="En cours" <?= ($stNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
+                                            <option value="Terminée" <?= ($isDone) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                            <option value="Bloquée" <?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? 'selected' : '' ?>>🛑 Bloquée</option>
+                                        </select>
+                                    </form>
+
+                                    <!-- Bouton d'action directe -->
                                     <?php if ($stNorm === 'a faire' || $stNorm === 'à faire'): ?>
-                                        <form method="POST" action="/gtm-tracker/tasks/start.php" style="margin:0">
+                                        <form method="POST" action="/gtm-tracker/tasks/start.php" style="margin:0;width:100%">
                                             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                             <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
-                                            <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:3px 9px;font-size:11px;font-weight:700;border-radius:4px" title="Marquer le début de la tâche maintenant">
+                                            <input type="hidden" name="redirect" value="/gtm-tracker/tasks/index.php?<?= htmlspecialchars(http_build_query($_GET), ENT_QUOTES, 'UTF-8') ?>">
+                                            <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;width:100%;padding:4px 8px;font-size:12px;font-weight:700;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:4px" title="Marquer le début de la tâche maintenant">
                                                 ▶️ Commencer
                                             </button>
                                         </form>
                                     <?php elseif ($stNorm === 'en cours'): ?>
-                                        <a href="/gtm-tracker/tasks/finish.php?id=<?= $t['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:3px 9px;font-size:11px;font-weight:700;border-radius:4px" title="Marquer la fin du travail et saisir le livrable">
+                                        <a href="/gtm-tracker/tasks/finish.php?id=<?= $t['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;width:100%;padding:4px 8px;font-size:12px;font-weight:700;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:4px;text-decoration:none" title="Marquer la fin du travail et enregistrer le livrable">
                                             🏁 Terminer
                                         </a>
-                                    <?php else: ?>
-                                        <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
-                                            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-                                            <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
-                                            <button type="submit" style="background:transparent;border:none;cursor:pointer;padding:0;font-size:11px;color:var(--text-dim)" title="Remettre en cours">
-                                                ↩️ Réouvrir
-                                            </button>
-                                        </form>
                                     <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="badge <?= statusBadge($t['status']) ?>" style="font-size:12.5px;padding:4px 10px">
+                                        <?= htmlspecialchars($t['status'], ENT_QUOTES, 'UTF-8') ?>
+                                    </span>
                                 <?php endif; ?>
                             </div>
                         </td>

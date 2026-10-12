@@ -36,15 +36,37 @@ if (!$isAdm && (int)$task['user_id'] !== $currentUid) {
     die('Accès refusé');
 }
 
-$currentStatus = mb_strtolower($task['status'], 'UTF-8');
-$isDone = in_array($currentStatus, ['terminée', 'terminee', 'termine']);
-$newStatus = $isDone ? 'En cours' : 'Terminée';
+$allowedStatuses = ['A faire', 'En cours', 'Terminée', 'Bloquée'];
+$requestedStatus = isset($_POST['new_status']) ? trim($_POST['new_status']) : '';
 
-$db->prepare("UPDATE tasks SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-   ->execute([$newStatus, $taskId]);
+if (!empty($requestedStatus) && in_array($requestedStatus, $allowedStatuses)) {
+    $newStatus = $requestedStatus;
+} else {
+    $currentStatus = mb_strtolower($task['status'], 'UTF-8');
+    $isDone = in_array($currentStatus, ['terminée', 'terminee', 'termine']);
+    $newStatus = $isDone ? 'En cours' : 'Terminée';
+}
 
-logActivity($currentUid, 'statut_tache', "Tâche $taskId passée à: $newStatus");
-$_SESSION['flash'] = ['type' => 'success', 'message' => "Statut mis à jour : $newStatus"];
+$now = date('Y-m-d H:i:s');
+if ($newStatus === 'En cours') {
+    $db->prepare("UPDATE tasks SET status = ?, started_at = COALESCE(started_at, ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+       ->execute([$newStatus, $now, $taskId]);
+} elseif ($newStatus === 'Terminée') {
+    $started = $task['started_at'] ?: $task['created_at'] ?: $now;
+    $diffSec = max(60, strtotime($now) - strtotime($started));
+    $hours = ((float)$task['hours_spent'] > 0) ? (float)$task['hours_spent'] : round($diffSec / 3600, 2);
+    $db->prepare("UPDATE tasks SET status = ?, completed_at = COALESCE(completed_at, ?), hours_spent = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+       ->execute([$newStatus, $now, $hours, $taskId]);
+} else {
+    $db->prepare("UPDATE tasks SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+       ->execute([$newStatus, $taskId]);
+}
+
+logActivity($currentUid, 'statut_tache', "Tâche « " . $task['title'] . " » passée à : $newStatus");
+$_SESSION['flash'] = [
+    'type' => 'success', 
+    'message' => "Le statut de la tâche a été mis à jour avec succès : « $newStatus »."
+];
 
 $redirect = !empty($_POST['redirect']) ? $_POST['redirect'] : '/gtm-tracker/tasks/index.php';
 header('Location: ' . $redirect);
