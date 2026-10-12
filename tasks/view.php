@@ -219,29 +219,29 @@ $isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'termi
                 <h4 class="card-title" style="font-size:14px">Informations clés</h4>
             </div>
             <div class="card-body" style="padding:16px 20px">
-                <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;flex-direction:column;gap:16px">
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Responsable</div>
-                        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-                            <div class="user-avatar" style="width:28px;height:28px;font-size:11px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Responsable</div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+                            <div class="user-avatar" style="width:30px;height:30px;font-size:12px;font-weight:700">
                                 <?= strtoupper(substr($task['user_name'], 0, 1)) ?>
                             </div>
-                            <span style="font-weight:600;color:var(--text-main)"><?= htmlspecialchars($task['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <span style="font-weight:700;font-size:14px;color:#ffffff"><?= htmlspecialchars($task['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
                         </div>
                     </div>
 
                     <?php if (!empty($task['assigned_by_name'])): ?>
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Donnée / Assignée par</div>
-                        <div style="font-weight:600;color:var(--primary);margin-top:2px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Donnée / Assignée par</div>
+                        <div style="font-weight:700;font-size:14px;color:#a5b4fc;margin-top:3px">
                             👤 <?= htmlspecialchars($task['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     </div>
                     <?php endif; ?>
 
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Catégorie</div>
-                        <div style="margin-top:4px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Catégorie</div>
+                        <div style="margin-top:5px">
                             <span class="badge <?= $catBadge ?>">
                                 <?= htmlspecialchars($catLabel, ENT_QUOTES, 'UTF-8') ?>
                             </span>
@@ -249,49 +249,49 @@ $isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'termi
                     </div>
 
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Date d'attribution</div>
-                        <div style="font-weight:600;color:var(--text-main);margin-top:4px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Date d'attribution</div>
+                        <div style="font-weight:700;font-size:14px;color:#ffffff;margin-top:4px">
                             📅 <?= date('d/m/Y', strtotime($task['task_date'])) ?>
                         </div>
                     </div>
 
                     <?php if (!empty($task['due_date'])): ?>
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Échéance / Date limite</div>
-                        <div style="font-weight:600;color:#f59e0b;margin-top:4px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Échéance / Date limite</div>
+                        <div style="font-weight:700;font-size:14px;color:#fbbf24;margin-top:4px">
                             ⏳ <?= date('d/m/Y', strtotime($task['due_date'])) ?>
                         </div>
                     </div>
                     <?php endif; ?>
 
-                    <div style="background:var(--bg-base);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border)">
-                        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;margin-bottom:8px">⏱️ Suivi Début / Fin</div>
+                    <div style="background:#0b1120;padding:14px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.15)">
+                        <div style="font-size:12px;color:#cbd5e1;text-transform:uppercase;font-weight:800;margin-bottom:10px">⏱️ Suivi Début / Fin</div>
                         
-                        <div style="margin-bottom:6px">
-                            <div style="font-size:11px;color:var(--text-muted)">Commencée le :</div>
-                            <div style="font-weight:600;color:<?= !empty($task['started_at']) ? 'var(--info)' : 'var(--text-dim)' ?>">
+                        <div style="margin-bottom:8px">
+                            <div style="font-size:12.5px;color:#94a3b8">Commencée le :</div>
+                            <div style="font-weight:700;font-size:13.5px;color:<?= !empty($task['started_at']) ? '#38bdf8' : '#94a3b8' ?>;margin-top:2px">
                                 <?= !empty($task['started_at']) ? '▶️ ' . date('d/m/Y à H:i', strtotime($task['started_at'])) : '⏳ Pas encore commencée' ?>
                             </div>
                         </div>
 
-                        <div style="margin-bottom:6px">
-                            <div style="font-size:11px;color:var(--text-muted)">Terminée le :</div>
-                            <div style="font-weight:600;color:<?= !empty($task['completed_at']) ? '#10b981' : 'var(--text-dim)' ?>">
+                        <div style="margin-bottom:8px">
+                            <div style="font-size:12.5px;color:#94a3b8">Terminée le :</div>
+                            <div style="font-weight:700;font-size:13.5px;color:<?= !empty($task['completed_at']) ? '#34d399' : '#94a3b8' ?>;margin-top:2px">
                                 <?= !empty($task['completed_at']) ? '🏁 ' . date('d/m/Y à H:i', strtotime($task['completed_at'])) : '— En attente de fin' ?>
                             </div>
                         </div>
 
                         <div>
-                            <div style="font-size:11px;color:var(--text-muted)">Temps effectif total :</div>
-                            <div style="font-size:14px;font-weight:700;color:var(--text-main);margin-top:2px">
+                            <div style="font-size:12.5px;color:#94a3b8">Temps effectif total :</div>
+                            <div style="font-size:15px;font-weight:800;color:#ffffff;margin-top:2px">
                                 <?= ((float)$task['hours_spent'] > 0) ? number_format((float)$task['hours_spent'], 1, ',', ' ') . ' h' : '—' ?>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Statut actuel</div>
-                        <div style="margin-top:4px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Statut actuel</div>
+                        <div style="margin-top:5px">
                             <span class="badge <?= statusBadge($task['status']) ?>">
                                 <?= htmlspecialchars($task['status'], ENT_QUOTES, 'UTF-8') ?>
                             </span>
@@ -299,15 +299,15 @@ $isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'termi
                     </div>
 
                     <div>
-                        <div style="font-size:11.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Niveau de priorité</div>
-                        <div style="margin-top:4px">
+                        <div style="font-size:12.5px;color:#cbd5e1;text-transform:uppercase;font-weight:700">Niveau de priorité</div>
+                        <div style="margin-top:5px">
                             <span class="badge <?= priorityBadge($task['priority']) ?>">
                                 <?= htmlspecialchars($task['priority'], ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </div>
                     </div>
 
-                    <div style="border-top:1px solid var(--border);padding-top:10px;font-size:11.5px;color:var(--text-dim)">
+                    <div style="border-top:1px solid rgba(255,255,255,0.12);padding-top:12px;font-size:12.5px;color:#94a3b8">
                         Créée le <?= date('d/m/Y à H:i', strtotime($task['created_at'])) ?>
                     </div>
                 </div>

@@ -13,13 +13,14 @@
   --bg-overlay: rgba(15, 23, 42, 0.8);
   --bg-hover: #26334d;
   
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.16);
-  --border-strong: rgba(255, 255, 255, 0.24);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --border-strong: rgba(255, 255, 255, 0.32);
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-main: #ffffff;
+  --text-body: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
 
   /* Accents */
   --primary: #6366f1;
@@ -64,14 +65,16 @@ html {
   color: var(--text-main);
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 14.5px;
+  line-height: 1.6;
   background-color: var(--bg-base);
-  color: var(--text-main);
+  color: var(--text-body);
+  font-weight: 400;
 }
 
 a {
@@ -472,26 +475,28 @@ table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 thead th {
-  background-color: rgba(255, 255, 255, 0.02);
-  color: var(--text-dim);
-  font-weight: 600;
-  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-hover);
   white-space: nowrap;
 }
 
 tbody td {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
-  color: var(--text-muted);
+  color: #f8fafc;
   vertical-align: middle;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 tbody tr:last-child td {
@@ -503,11 +508,11 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.025);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 tbody tr:hover td {
-  color: var(--text-main);
+  color: #ffffff;
 }
 
 /* =============================================================================
@@ -517,27 +522,27 @@ tbody tr:hover td {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: var(--radius-full);
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 650;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
-.badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
-.badge-info    { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.25); }
-.badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
-.badge-danger  { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); }
-.badge-purple  { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.25); }
-.badge-gray    { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.2); }
-.badge-accent  { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.25); }
+.badge-success { background: rgba(16, 185, 129, 0.22); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+.badge-info    { background: rgba(14, 165, 233, 0.22); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.45); }
+.badge-warning { background: rgba(245, 158, 11, 0.22); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.45); }
+.badge-danger  { background: rgba(239, 68, 68, 0.22); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.45); }
+.badge-purple  { background: rgba(168, 85, 247, 0.22); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); }
+.badge-gray    { background: rgba(148, 163, 184, 0.22); color: #f1f5f9; border: 1px solid rgba(148, 163, 184, 0.4); }
+.badge-accent  { background: rgba(99, 102, 241, 0.22); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.45); }
 
 /* Priorities */
-.priority-basse   { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
-.priority-normale { background: rgba(14, 165, 233, 0.12); color: #38bdf8; }
-.priority-haute   { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-.priority-urgente { background: rgba(239, 68, 68, 0.18); color: #f87171; font-weight: 700; }
+.priority-basse   { background: rgba(148, 163, 184, 0.2); color: #e2e8f0; font-weight: 600; }
+.priority-normale { background: rgba(14, 165, 233, 0.2); color: #7dd3fc; font-weight: 600; }
+.priority-haute   { background: rgba(245, 158, 11, 0.22); color: #fde047; font-weight: 650; }
+.priority-urgente { background: rgba(239, 68, 68, 0.25); color: #fca5a5; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.5); }
 
 /* =============================================================================
    BUTTONS
@@ -621,20 +626,20 @@ tbody tr:hover td {
 
 .form-label {
   display: block;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #f8fafc;
   margin-bottom: 6px;
 }
 
 .form-control {
   width: 100%;
-  padding: 10px 14px;
-  background-color: var(--bg-base);
-  border: 1px solid var(--border);
+  padding: 11px 15px;
+  background-color: #0d1322;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: var(--radius-sm);
-  color: var(--text-main);
-  font-size: 13.5px;
+  color: #ffffff;
+  font-size: 14.5px;
   font-family: inherit;
   transition: var(--transition);
   outline: none;
@@ -643,19 +648,34 @@ tbody tr:hover td {
 .form-control:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-glow);
+  background-color: #111a2e;
 }
 
 .form-control::placeholder {
-  color: var(--text-dim);
+  color: #94a3b8;
+}
+
+.form-hint {
+  display: block;
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-top: 5px;
+  line-height: 1.4;
 }
 
 select.form-control {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
+  background-position: right 14px center;
+  padding-right: 40px;
   cursor: pointer;
+}
+
+select.form-control option {
+  background-color: #111827;
+  color: #ffffff;
+  padding: 8px;
 }
 
 textarea.form-control {

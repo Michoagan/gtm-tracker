@@ -138,21 +138,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0 0 6px;
         }
         .login-app-sub {
-            font-size: 14px; color: var(--text-dim); margin: 0;
+            font-size: 15px; color: #cbd5e1; margin: 0; font-weight: 500;
         }
         .login-card-new {
             background: var(--bg-surface);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-hover);
             border-radius: 20px;
             padding: 32px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         .login-card-title {
-            font-size: 16px; font-weight: 600; color: var(--text-main);
+            font-size: 18px; font-weight: 700; color: #ffffff;
             margin: 0 0 6px;
         }
         .login-card-desc {
-            font-size: 13px; color: var(--text-dim);
+            font-size: 14px; color: #cbd5e1;
             margin: 0 0 24px;
         }
         .member-grid {
@@ -175,21 +175,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .member-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
         }
         .member-btn.admin-btn {
-            border-color: rgba(239,68,68,0.3);
-            background: rgba(239,68,68,0.05);
+            border-color: rgba(239,68,68,0.4);
+            background: rgba(239,68,68,0.08);
         }
         .member-btn.admin-btn:hover {
             border-color: #ef4444;
-            background: rgba(239,68,68,0.1);
-            box-shadow: 0 12px 32px rgba(239,68,68,0.2);
+            background: rgba(239,68,68,0.15);
+            box-shadow: 0 12px 32px rgba(239,68,68,0.25);
         }
         .member-btn.active {
             border-color: var(--primary);
-            background: rgba(99,102,241,0.1);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+            background: rgba(99,102,241,0.15);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.3);
         }
         .member-avatar-lg {
             width: 52px; height: 52px;
@@ -199,13 +200,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             letter-spacing: 0.5px;
         }
         .member-name {
-            font-size: 12px; font-weight: 600;
-            color: var(--text-main);
+            font-size: 13.5px; font-weight: 700;
+            color: #ffffff;
             line-height: 1.3;
         }
         .member-role-tag {
-            font-size: 10px;
-            color: var(--text-dim);
+            font-size: 12px;
+            color: #cbd5e1;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -213,23 +215,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: none;
             margin-top: 20px;
             padding: 20px;
-            background: rgba(99,102,241,0.06);
-            border: 1px solid rgba(99,102,241,0.25);
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.35);
             border-radius: 14px;
         }
         .pin-section.visible { display: block; }
         .pin-section label {
-            display: block; font-size: 13px;
-            font-weight: 600; color: var(--text-main);
+            display: block; font-size: 14px;
+            font-weight: 700; color: #ffffff;
             margin-bottom: 8px;
         }
         .pin-input {
             width: 100%; padding: 13px 16px;
-            background: var(--bg-elevated);
+            background: #0d1322;
             border: 1px solid var(--border-strong);
             border-radius: 10px;
-            color: var(--text-main);
-            font-size: 15px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
             font-family: 'Inter', sans-serif;
             text-align: center;
             box-sizing: border-box;

@@ -295,33 +295,33 @@ $recentTasks = $db->query("
                 $catL = taskCategoryLabel($rt['category']);
             ?>
                 <tr>
-                    <td style="white-space:nowrap;color:var(--text-dim);font-size:12.5px"><?= date('d/m/Y', strtotime($rt['task_date'])) ?></td>
+                    <td style="white-space:nowrap;color:#e2e8f0;font-size:13.5px;font-weight:500"><?= date('d/m/Y', strtotime($rt['task_date'])) ?></td>
                     <?php if($isAdm): ?>
                     <td>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <div class="user-avatar" style="width:26px;height:26px;font-size:11px"><?= strtoupper(substr($rt['user_name'],0,1)) ?></div>
-                            <span style="font-weight:600;font-size:13px"><?= htmlspecialchars(explode(' ',$rt['user_name'])[0],ENT_QUOTES,'UTF-8') ?></span>
+                            <div class="user-avatar" style="width:28px;height:28px;font-size:12px;font-weight:700"><?= strtoupper(substr($rt['user_name'],0,1)) ?></div>
+                            <span style="font-weight:700;font-size:13.5px;color:#ffffff"><?= htmlspecialchars(explode(' ',$rt['user_name'])[0],ENT_QUOTES,'UTF-8') ?></span>
                         </div>
                     </td>
                     <?php endif; ?>
                     <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL,ENT_QUOTES,'UTF-8') ?></span></td>
                     <td>
-                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" style="font-weight:600">
+                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" style="font-weight:700;font-size:14px;color:#ffffff;text-decoration:none">
                             <?= htmlspecialchars($rt['title'], ENT_QUOTES, 'UTF-8') ?>
                         </a>
-                        <div style="font-size:11px;color:var(--text-dim);margin-top:2px">
+                        <div style="font-size:12.5px;color:#cbd5e1;margin-top:3px">
                             <?php if(!empty($rt['due_date'])): ?>
-                                <span style="color:#f59e0b;margin-right:6px">⏳ Échéance : <?= date('d/m', strtotime($rt['due_date'])) ?></span>
+                                <span style="color:#fbbf24;font-weight:600;margin-right:8px">⏳ Échéance : <?= date('d/m', strtotime($rt['due_date'])) ?></span>
                             <?php endif; ?>
                             <?php if(!empty($rt['started_at'])): ?>
-                                <span style="color:var(--info);margin-right:6px">▶️ Début : <?= date('d/m H:i', strtotime($rt['started_at'])) ?></span>
+                                <span style="color:#38bdf8;font-weight:600;margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($rt['started_at'])) ?></span>
                             <?php endif; ?>
                             <?php if(!empty($rt['link_url'])): ?>
-                                <a href="<?= htmlspecialchars($rt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:var(--info)" title="Lien externe">🔗</a>
+                                <a href="<?= htmlspecialchars($rt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:600" title="Lien externe">🔗 Lien</a>
                             <?php endif; ?>
                         </div>
                     </td>
-                    <td style="color:var(--text-muted);font-weight:600;font-size:12.5px"><?= ((float)$rt['hours_spent']>0)?number_format((float)$rt['hours_spent'],1,',',' ').' h':'—' ?></td>
+                    <td style="color:#ffffff;font-weight:700;font-size:13.5px"><?= ((float)$rt['hours_spent']>0)?number_format((float)$rt['hours_spent'],1,',',' ').' h':'—' ?></td>
                     <td>
                         <?php $rtNorm = mb_strtolower($rt['status'], 'UTF-8'); ?>
                         <span class="badge <?= statusBadge($rt['status']) ?>"><?= htmlspecialchars($rt['status'],ENT_QUOTES,'UTF-8') ?></span>

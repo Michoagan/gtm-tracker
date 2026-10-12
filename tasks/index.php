@@ -250,15 +250,15 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                         $isDone = in_array(mb_strtolower($t['status'], 'UTF-8'), ['terminée', 'terminee', 'termine']);
                     ?>
                     <tr>
-                        <td style="white-space:nowrap;color:var(--text-dim);font-size:12.5px">
+                        <td style="white-space:nowrap;color:#e2e8f0;font-size:13.5px;font-weight:500">
                             <?= date('d/m/Y', strtotime($t['task_date'])) ?>
                         </td>
                         <td>
                             <div style="display:flex;align-items:center;gap:8px">
-                                <div class="user-avatar" style="width:28px;height:28px;font-size:11px">
+                                <div class="user-avatar" style="width:30px;height:30px;font-size:12px;font-weight:700">
                                     <?= strtoupper(substr($t['user_name'], 0, 1)) ?>
                                 </div>
-                                <span style="font-weight:600;font-size:13px;color:var(--text-main)">
+                                <span style="font-weight:700;font-size:13.5px;color:#ffffff">
                                     <?= htmlspecialchars(explode(' ', $t['user_name'])[0], ENT_QUOTES, 'UTF-8') ?>
                                 </span>
                             </div>
@@ -269,45 +269,45 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                             </span>
                         </td>
                         <td>
-                            <div style="font-weight:600;color:var(--text-main);font-size:13.5px;margin-bottom:2px">
-                                <a href="/gtm-tracker/tasks/view.php?id=<?= $t['id'] ?>" style="color:var(--text-main);text-decoration:none">
+                            <div style="font-weight:700;font-size:14.5px;margin-bottom:4px">
+                                <a href="/gtm-tracker/tasks/view.php?id=<?= $t['id'] ?>" style="color:#ffffff;text-decoration:none">
                                     <?= htmlspecialchars($t['title'], ENT_QUOTES, 'UTF-8') ?>
                                 </a>
                             </div>
                             <?php if (!empty($t['description'])): ?>
-                                <div style="font-size:12px;color:var(--text-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                                <div style="font-size:13px;color:#cbd5e1;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
                                     <?= htmlspecialchars($t['description'], ENT_QUOTES, 'UTF-8') ?>
                                 </div>
                             <?php endif; ?>
                             <?php if (!empty($t['result'])): ?>
-                                <div style="font-size:11.5px;color:#10b981;margin-top:2px">
+                                <div style="font-size:12.5px;color:#34d399;margin-top:3px;font-weight:500">
                                     🎯 <em>Livrable : <?= htmlspecialchars(mb_substr($t['result'], 0, 80), ENT_QUOTES, 'UTF-8') ?><?= mb_strlen($t['result']) > 80 ? '...' : '' ?></em>
                                 </div>
                             <?php endif; ?>
-                            <div style="display:flex;gap:12px;margin-top:4px;font-size:11.5px;color:var(--text-dim);flex-wrap:wrap">
+                            <div style="display:flex;gap:12px;margin-top:5px;font-size:12.5px;color:#cbd5e1;flex-wrap:wrap">
                                 <?php if (!empty($t['assigned_by_name'])): ?>
-                                    <span style="color:var(--primary);font-weight:500">👤 Donnée par <?= htmlspecialchars($t['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    <span style="color:#a5b4fc;font-weight:600">👤 Donnée par <?= htmlspecialchars($t['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['due_date'])): ?>
-                                    <span style="color:#f59e0b;font-weight:500">⏳ Échéance : <?= date('d/m/Y', strtotime($t['due_date'])) ?></span>
+                                    <span style="color:#fbbf24;font-weight:600">⏳ Échéance : <?= date('d/m/Y', strtotime($t['due_date'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['started_at'])): ?>
-                                    <span style="color:var(--info)">▶️ Début : <?= date('d/m à H:i', strtotime($t['started_at'])) ?></span>
+                                    <span style="color:#38bdf8;font-weight:600">▶️ Début : <?= date('d/m à H:i', strtotime($t['started_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['completed_at'])): ?>
-                                    <span style="color:#10b981">🏁 Fin : <?= date('d/m à H:i', strtotime($t['completed_at'])) ?></span>
+                                    <span style="color:#34d399;font-weight:600">🏁 Fin : <?= date('d/m à H:i', strtotime($t['completed_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($t['link_url'])): ?>
-                                    <a href="<?= htmlspecialchars($t['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:var(--info);display:inline-flex;align-items:center;gap:3px">
+                                    <a href="<?= htmlspecialchars($t['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#38bdf8;display:inline-flex;align-items:center;gap:3px;font-weight:600">
                                         🔗 Lien externe ↗
                                     </a>
                                 <?php endif; ?>
                                 <?php if ($t['attachments_count'] > 0): ?>
-                                    <span style="color:var(--text-muted)">📎 <?= $t['attachments_count'] ?> pièce(s)</span>
+                                    <span style="color:#e2e8f0;font-weight:500">📎 <?= $t['attachments_count'] ?> pièce(s)</span>
                                 <?php endif; ?>
                             </div>
                         </td>
-                        <td style="white-space:nowrap;font-weight:600;font-size:12.5px;color:var(--text-muted)">
+                        <td style="white-space:nowrap;font-weight:700;font-size:13.5px;color:#ffffff">
                             <?= ((float)$t['hours_spent'] > 0) ? number_format((float)$t['hours_spent'], 1, ',', ' ') . ' h' : '—' ?>
                         </td>
                         <td>

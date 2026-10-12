@@ -141,30 +141,30 @@ $myTasks = $stmtMyTasks->fetchAll();
                         $stNorm = mb_strtolower($mt['status'], 'UTF-8');
                     ?>
                     <tr>
-                        <td style="color:var(--text-dim);font-size:12.5px;white-space:nowrap">
+                        <td style="color:#e2e8f0;font-size:13.5px;font-weight:500;white-space:nowrap">
                             <?= date('d/m/Y', strtotime($mt['task_date'])) ?>
                             <?php if (!empty($mt['due_date'])): ?>
-                                <div style="font-size:11px;color:#f59e0b">⏳ Échéance : <?= date('d/m', strtotime($mt['due_date'])) ?></div>
+                                <div style="font-size:12px;color:#fbbf24;font-weight:600">⏳ Échéance : <?= date('d/m', strtotime($mt['due_date'])) ?></div>
                             <?php endif; ?>
                         </td>
                         <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL, ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td>
-                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" style="font-weight:600">
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" style="font-weight:700;font-size:14px;color:#ffffff;text-decoration:none">
                                 <?= htmlspecialchars($mt['title'], ENT_QUOTES, 'UTF-8') ?>
                             </a>
-                            <div style="font-size:11.5px;color:var(--text-dim);margin-top:2px">
+                            <div style="font-size:12.5px;color:#cbd5e1;margin-top:3px">
                                 <?php if (!empty($mt['started_at'])): ?>
-                                    <span style="color:var(--info);margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($mt['started_at'])) ?></span>
+                                    <span style="color:#38bdf8;font-weight:600;margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($mt['started_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($mt['completed_at'])): ?>
-                                    <span style="color:#10b981;margin-right:8px">🏁 Fin : <?= date('d/m H:i', strtotime($mt['completed_at'])) ?></span>
+                                    <span style="color:#34d399;font-weight:600;margin-right:8px">🏁 Fin : <?= date('d/m H:i', strtotime($mt['completed_at'])) ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($mt['link_url'])): ?>
-                                    <a href="<?= htmlspecialchars($mt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:var(--info)" title="Lien externe">🔗 Lien</a>
+                                    <a href="<?= htmlspecialchars($mt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:600" title="Lien externe">🔗 Lien</a>
                                 <?php endif; ?>
                             </div>
                         </td>
-                        <td style="font-weight:600;color:var(--text-muted);font-size:12.5px"><?= ((float)$mt['hours_spent'] > 0) ? number_format((float)$mt['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
+                        <td style="font-weight:700;color:#ffffff;font-size:13.5px"><?= ((float)$mt['hours_spent'] > 0) ? number_format((float)$mt['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
                         <td><span class="badge <?= statusBadge($mt['status']) ?>"><?= htmlspecialchars($mt['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td style="text-align:right;white-space:nowrap">
                             <?php if ($stNorm === 'a faire' || $stNorm === 'à faire'): ?>
