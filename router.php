@@ -9,6 +9,9 @@ if (strpos($uri, '/gtm-tracker') === 0) {
         $relative = '/index.php';
     }
     $target = __DIR__ . $relative;
+    if (is_dir($target)) {
+        $target = rtrim($target, '/\\') . '/index.php';
+    }
 
     if (file_exists($target) && !is_dir($target)) {
         $ext = pathinfo($target, PATHINFO_EXTENSION);
@@ -43,8 +46,16 @@ if ($uri === '/' || $uri === '') {
 }
 
 $direct = __DIR__ . $uri;
+if (is_dir($direct)) {
+    $indexFile = rtrim($direct, '/\\') . '/index.php';
+    if (file_exists($indexFile)) {
+        require $indexFile;
+        exit;
+    }
+}
 if (file_exists($direct) && !is_dir($direct)) {
     return false; // PHP sert le fichier directement
 }
 
 return false;
+

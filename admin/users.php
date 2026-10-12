@@ -23,6 +23,7 @@ foreach ($members as $i => $m):
     $actCount  = $db->query("SELECT COUNT(*) FROM actions WHERE user_id = $mid")->fetchColumn();
     $convCount = $db->query("SELECT COUNT(*) FROM conversations WHERE user_id = $mid")->fetchColumn();
     $prospCount = $db->query("SELECT COUNT(*) FROM prospects WHERE assigned_to = $mid")->fetchColumn();
+    $taskCount  = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $mid")->fetchColumn();
 ?>
 <div class="card" style="border-top:3px solid <?= $color ?>;padding:24px">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
@@ -32,31 +33,38 @@ foreach ($members as $i => $m):
         <div>
             <div style="font-size:15px;font-weight:700;color:var(--text-main)"><?= htmlspecialchars($m['name'],ENT_QUOTES,'UTF-8') ?></div>
             <div style="font-size:12px;color:var(--text-dim);margin-top:2px">
-                <?= $m['role']==='admin' ? '<span class="badge badge-accent">Administrateur</span>' : '<span class="badge badge-gray">Commercial</span>' ?>
+                <?= $m['role']==='admin' ? '<span class="badge badge-accent">Administrateur</span>' : '<span class="badge badge-gray">Collaborateur</span>' ?>
             </div>
         </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;margin-bottom:20px">
-        <div style="background:var(--bg-base);padding:10px;border-radius:8px">
-            <div style="font-size:22px;font-weight:700;color:var(--text-main)"><?= $actCount ?></div>
-            <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px">Actions</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-bottom:20px">
+        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px">
+            <div style="font-size:18px;font-weight:700;color:var(--text-main)"><?= $actCount ?></div>
+            <div style="font-size:9.5px;color:var(--text-dim);text-transform:uppercase">Actions</div>
         </div>
-        <div style="background:var(--bg-base);padding:10px;border-radius:8px">
-            <div style="font-size:22px;font-weight:700;color:var(--text-main)"><?= $convCount ?></div>
-            <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px">Conversations</div>
+        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px">
+            <div style="font-size:18px;font-weight:700;color:var(--text-main)"><?= $convCount ?></div>
+            <div style="font-size:9.5px;color:var(--text-dim);text-transform:uppercase">Convs</div>
         </div>
-        <div style="background:var(--bg-base);padding:10px;border-radius:8px">
-            <div style="font-size:22px;font-weight:700;color:var(--text-main)"><?= $prospCount ?></div>
-            <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px">Prospects</div>
+        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px">
+            <div style="font-size:18px;font-weight:700;color:var(--text-main)"><?= $prospCount ?></div>
+            <div style="font-size:9.5px;color:var(--text-dim);text-transform:uppercase">Prospects</div>
+        </div>
+        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px;border:1px solid rgba(139,92,246,0.3)">
+            <div style="font-size:18px;font-weight:700;color:#8b5cf6"><?= $taskCount ?></div>
+            <div style="font-size:9.5px;color:#a78bfa;text-transform:uppercase;font-weight:600">Tâches</div>
         </div>
     </div>
     <div style="display:flex;gap:8px;flex-direction:column">
+        <a href="/gtm-tracker/tasks/create.php?user_id=<?= $mid ?>" class="btn btn-primary btn-sm" style="text-align:center;background:#8b5cf6">
+            📋 Donner une tâche à <?= htmlspecialchars(explode(' ',$m['name'])[0],ENT_QUOTES,'UTF-8') ?>
+        </a>
         <a href="/gtm-tracker/my-space.php?user_id=<?= $mid ?>" class="btn btn-secondary btn-sm" style="text-align:center">
             👁️ Voir l'espace de <?= htmlspecialchars(explode(' ',$m['name'])[0],ENT_QUOTES,'UTF-8') ?>
         </a>
         <?php if ($m['role'] !== 'admin'): ?>
-        <a href="/gtm-tracker/actions/create.php?user_id=<?= $mid ?>" class="btn btn-primary btn-sm" style="text-align:center">
-            ➕ Assigner une action
+        <a href="/gtm-tracker/actions/create.php?user_id=<?= $mid ?>" class="btn btn-secondary btn-sm" style="text-align:center">
+            ➕ Assigner une action GTM
         </a>
         <?php endif; ?>
     </div>

@@ -69,28 +69,47 @@ $recentActions = $db->query("
     ORDER BY a.created_at DESC LIMIT 8
 ")->fetchAll();
 
+// Tasks metrics
+$whereTask = $isAdm ? '' : "WHERE user_id = $uid";
+$totalTasks = $db->query("SELECT COUNT(*) FROM tasks $whereTask")->fetchColumn();
+$techTasks  = $db->query("SELECT COUNT(*) FROM tasks " . ($isAdm ? "WHERE category = 'tech'" : "WHERE user_id = $uid AND category = 'tech'"))->fetchColumn();
+$doneTasks  = $db->query("SELECT COUNT(*) FROM tasks " . ($isAdm ? "WHERE status IN ('Terminée','Terminee','termine','terminée')" : "WHERE user_id = $uid AND status IN ('Terminée','Terminee','termine','terminée')"))->fetchColumn();
+$totalHours = $db->query("SELECT COALESCE(SUM(hours_spent), 0) FROM tasks $whereTask")->fetchColumn();
 
-
-
+// Recent tasks
+$recentTasks = $db->query("
+    SELECT t.*, u.name as user_name
+    FROM tasks t
+    JOIN users u ON u.id = t.user_id
+    " . ($isAdm ? '' : "WHERE t.user_id = $uid") . "
+    ORDER BY t.task_date DESC, t.id DESC LIMIT 6
+")->fetchAll();
 ?>
 <div class="animate-in">
 
 <div class="page-header">
     <div>
-        <h2 class="page-header-title">Tableau de bord GTM</h2>
-        <p class="page-header-sub">Vue d'ensemble et pilotage de la strategie Go-To-Market</p>
+        <h2 class="page-header-title">Tableau de bord Général</h2>
+        <p class="page-header-sub">Pilotage de l'équipe : Tâches &amp; Développements Tech, Actions &amp; Stratégie GTM</p>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="background:#8b5cf6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            + Nouvelle tâche
+        </a>
+        <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary">
+            📋 Toutes les tâches
+        </a>
         <?php if ($isAdm): ?>
         <a href="/gtm-tracker/admin/users.php" class="btn btn-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-            Inscrire un collaborateur
+            Personnel
         </a>
-        <?php endif; ?><?php if ($isAdm): ?>
         <a href="/gtm-tracker/actions/create.php" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nouvelle action
-        </a><?php endif; ?>
+            Nouvelle action GTM
+        </a>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -131,6 +150,52 @@ $recentActions = $db->query("
         <div class="stat-value"><?= $totalConverted ?></div>
         <svg class="stat-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         <div class="stat-sub">Prospects convertis</div>
+    </div>
+</div>
+
+<!-- Section Tâches & Réalisations (Tech, GTM, etc.) -->
+<div style="margin-bottom:24px;background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06));border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius-lg);padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:22px">💻</span>
+            <div>
+                <h3 style="font-size:16px;font-weight:700;color:var(--text-main);margin:0">
+                    Tâches Effectuées &amp; Développements Solutions
+                </h3>
+                <span style="font-size:12px;color:var(--text-muted)">Suivi opérationnel des réalisations techniques et commerciales</span>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px">
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm" style="background:#8b5cf6">
+                + Ajouter une tâche
+            </a>
+            <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary btn-sm">
+                Consulter les tâches →
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid" style="margin-bottom:0">
+        <div class="stat-card" style="--card-color:#8b5cf6;background:var(--bg-elevated)">
+            <div class="stat-label">Tâches totales</div>
+            <div class="stat-value"><?= (int)$totalTasks ?></div>
+            <div class="stat-sub"><?= $isAdm ? 'Équipe complète' : 'Mes tâches' ?></div>
+        </div>
+        <div class="stat-card" style="--card-color:#10b981;background:var(--bg-elevated)">
+            <div class="stat-label">Tâches terminées</div>
+            <div class="stat-value"><?= (int)$doneTasks ?></div>
+            <div class="stat-sub">Réalisations accomplies</div>
+        </div>
+        <div class="stat-card" style="--card-color:#a855f7;background:var(--bg-elevated)">
+            <div class="stat-label">Développement Tech</div>
+            <div class="stat-value"><?= (int)$techTasks ?></div>
+            <div class="stat-sub">Code &amp; Architecture</div>
+        </div>
+        <div class="stat-card" style="--card-color:#f59e0b;background:var(--bg-elevated)">
+            <div class="stat-label">Heures investies</div>
+            <div class="stat-value"><?= number_format((float)$totalHours, 1, ',', ' ') ?> h</div>
+            <div class="stat-sub">Temps cumulé</div>
+        </div>
     </div>
 </div>
 
@@ -191,6 +256,100 @@ $recentActions = $db->query("
     </div>
 </div>
 <?php endif; ?>
+
+<!-- Dernières Tâches Effectuées (Tech & Équipe) -->
+<div class="card" style="margin-bottom:24px">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+            <span class="card-title" style="margin-bottom:0">💻 Dernières Tâches &amp; Développements</span>
+            <span class="badge badge-purple"><?= count($recentTasks) ?> récentes</span>
+        </div>
+        <div style="display:flex;gap:8px">
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm">+ Nouvelle tâche</a>
+            <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary btn-sm">Voir tout</a>
+        </div>
+    </div>
+    <?php if (empty($recentTasks)): ?>
+    <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="m9 14 2 2 4-4"/></svg>
+        <h3>Aucune tâche enregistrée</h3>
+        <p><a href="/gtm-tracker/tasks/create.php">Enregistrer une première tâche effectuée</a></p>
+    </div>
+    <?php else: ?>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <?php if($isAdm): ?><th>Membre</th><?php endif; ?>
+                    <th>Catégorie</th>
+                    <th>Intitulé de la tâche</th>
+                    <th>Temps</th>
+                    <th>Statut</th>
+                    <th style="text-align:right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach($recentTasks as $rt): 
+                $catB = taskCategoryBadge($rt['category']);
+                $catL = taskCategoryLabel($rt['category']);
+            ?>
+                <tr>
+                    <td style="white-space:nowrap;color:var(--text-dim);font-size:12.5px"><?= date('d/m/Y', strtotime($rt['task_date'])) ?></td>
+                    <?php if($isAdm): ?>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="user-avatar" style="width:26px;height:26px;font-size:11px"><?= strtoupper(substr($rt['user_name'],0,1)) ?></div>
+                            <span style="font-weight:600;font-size:13px"><?= htmlspecialchars(explode(' ',$rt['user_name'])[0],ENT_QUOTES,'UTF-8') ?></span>
+                        </div>
+                    </td>
+                    <?php endif; ?>
+                    <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL,ENT_QUOTES,'UTF-8') ?></span></td>
+                    <td>
+                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" style="font-weight:600">
+                            <?= htmlspecialchars($rt['title'], ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                        <div style="font-size:11px;color:var(--text-dim);margin-top:2px">
+                            <?php if(!empty($rt['due_date'])): ?>
+                                <span style="color:#f59e0b;margin-right:6px">⏳ Échéance : <?= date('d/m', strtotime($rt['due_date'])) ?></span>
+                            <?php endif; ?>
+                            <?php if(!empty($rt['started_at'])): ?>
+                                <span style="color:var(--info);margin-right:6px">▶️ Début : <?= date('d/m H:i', strtotime($rt['started_at'])) ?></span>
+                            <?php endif; ?>
+                            <?php if(!empty($rt['link_url'])): ?>
+                                <a href="<?= htmlspecialchars($rt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:var(--info)" title="Lien externe">🔗</a>
+                            <?php endif; ?>
+                        </div>
+                    </td>
+                    <td style="color:var(--text-muted);font-weight:600;font-size:12.5px"><?= ((float)$rt['hours_spent']>0)?number_format((float)$rt['hours_spent'],1,',',' ').' h':'—' ?></td>
+                    <td>
+                        <?php $rtNorm = mb_strtolower($rt['status'], 'UTF-8'); ?>
+                        <span class="badge <?= statusBadge($rt['status']) ?>"><?= htmlspecialchars($rt['status'],ENT_QUOTES,'UTF-8') ?></span>
+                    </td>
+                    <td style="text-align:right;white-space:nowrap">
+                        <?php if ($rtNorm === 'a faire' || $rtNorm === 'à faire'): ?>
+                            <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline;margin:0">
+                                <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
+                                <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
+                                <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:2px 7px;font-size:11px;font-weight:700" title="Commencer cette tâche">
+                                    ▶️ Démarrer
+                                </button>
+                            </form>
+                        <?php elseif ($rtNorm === 'en cours'): ?>
+                            <a href="/gtm-tracker/tasks/finish.php?id=<?= $rt['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:2px 7px;font-size:11px;font-weight:700" title="Terminer cette tâche">
+                                🏁 Terminer
+                            </a>
+                        <?php endif; ?>
+                        <a href="/gtm-tracker/tasks/view.php?id=<?= $rt['id'] ?>" class="btn btn-secondary btn-sm" style="padding:3px 7px">👁️</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php endif; ?>
+</div>
 
 <!-- Recent Actions -->
 <div class="card">

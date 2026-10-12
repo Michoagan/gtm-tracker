@@ -1,6 +1,9 @@
-﻿# GTM Tracker 🎯
+# GTM & Ops Tracker 🎯💻
 
-Application web interne moderne, légère et complète permettant à une équipe de **5 personnes** de piloter et tracer toutes les actions de leur stratégie **Go-To-Market (GTM)**.
+Application web interne moderne, collaborative et complète permettant à l'équipe de piloter et tracer **l'ensemble de ses réalisations** :
+- **Développement Tech & Solutions** (code, architecture, APIs, bugs, livrables techniques)
+- **Gestion des Tâches Opérationnelles** (temps passé, livrables, statut, priorité, liens GitHub/Figma)
+- **Stratégie Go-To-Market (GTM)** (prospections, canaux, conversations, relances)
 
 ---
 

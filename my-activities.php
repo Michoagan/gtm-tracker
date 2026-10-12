@@ -36,19 +36,43 @@ $stmtConv = $db->prepare("
 ");
 $stmtConv->execute([$uid]);
 $myConvs = $stmtConv->fetchAll();
+
+// Personal tasks metrics
+$myTotalTasks = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $uid")->fetchColumn();
+$myDoneTasks  = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $uid AND status IN ('Terminée','Terminee','termine','terminée')")->fetchColumn();
+$myTechTasks  = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $uid AND category = 'tech'")->fetchColumn();
+$myHoursTasks = $db->query("SELECT COALESCE(SUM(hours_spent), 0) FROM tasks WHERE user_id = $uid")->fetchColumn();
+
+// My recent tasks
+$stmtMyTasks = $db->prepare("
+    SELECT * FROM tasks 
+    WHERE user_id = ? 
+    ORDER BY task_date DESC, id DESC 
+    LIMIT 6
+");
+$stmtMyTasks->execute([$uid]);
+$myTasks = $stmtMyTasks->fetchAll();
 ?>
 
 <div class="page-header">
     <div>
-        <h2 class="page-header-title">Mes Activites GTM</h2>
+        <h2 class="page-header-title">Mes Activités &amp; Tâches</h2>
         <p class="page-header-subtitle">Espace personnel de <?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></p>
     </div>
-    <div style="display:flex;gap:10px"><?php if (isAdmin()): ?>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="background:#8b5cf6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            + Enregistrer une tâche
+        </a>
+        <a href="/gtm-tracker/tasks/index.php?view=mine" class="btn btn-secondary">
+            📋 Mes tâches
+        </a>
+        <?php if (isAdmin()): ?>
         <a href="/gtm-tracker/actions/create.php" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nouvelle action
-        </a><?php endif; ?>
-        
+            Nouvelle action GTM
+        </a>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -78,6 +102,93 @@ $myConvs = $stmtConv->fetchAll();
         <div class="stat-value"><?= $myTotalConvs ?></div>
         <div class="stat-sub">Echanges traces</div>
     </div>
+</div>
+
+<!-- Mes Tâches & Développements Tech -->
+<div class="card" style="margin-top:24px">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+            <span class="card-title" style="margin-bottom:0">💻 Mes Tâches Effectuées &amp; Développements</span>
+            <span class="badge badge-purple"><?= (int)$myTotalTasks ?> tâche(s) au total • <?= number_format((float)$myHoursTasks, 1, ',', ' ') ?> h</span>
+        </div>
+        <div style="display:flex;gap:8px">
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm">+ Ajouter une tâche</a>
+            <a href="/gtm-tracker/tasks/index.php?view=mine" class="btn btn-secondary btn-sm">Voir tout</a>
+        </div>
+    </div>
+    <?php if (empty($myTasks)): ?>
+        <div class="empty-state">
+            <p>Vous n'avez pas encore consigné de tâches personnelles.</p>
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm" style="margin-top:10px">+ Enregistrer ma première tâche (Tech, GTM...)</a>
+        </div>
+    <?php else: ?>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:100px">Date</th>
+                        <th>Catégorie</th>
+                        <th>Intitulé de la tâche</th>
+                        <th>Temps</th>
+                        <th>Statut</th>
+                        <th style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($myTasks as $mt): 
+                        $catB = taskCategoryBadge($mt['category']);
+                        $catL = taskCategoryLabel($mt['category']);
+                        $stNorm = mb_strtolower($mt['status'], 'UTF-8');
+                    ?>
+                    <tr>
+                        <td style="color:var(--text-dim);font-size:12.5px;white-space:nowrap">
+                            <?= date('d/m/Y', strtotime($mt['task_date'])) ?>
+                            <?php if (!empty($mt['due_date'])): ?>
+                                <div style="font-size:11px;color:#f59e0b">⏳ Échéance : <?= date('d/m', strtotime($mt['due_date'])) ?></div>
+                            <?php endif; ?>
+                        </td>
+                        <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL, ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td>
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" style="font-weight:600">
+                                <?= htmlspecialchars($mt['title'], ENT_QUOTES, 'UTF-8') ?>
+                            </a>
+                            <div style="font-size:11.5px;color:var(--text-dim);margin-top:2px">
+                                <?php if (!empty($mt['started_at'])): ?>
+                                    <span style="color:var(--info);margin-right:8px">▶️ Début : <?= date('d/m H:i', strtotime($mt['started_at'])) ?></span>
+                                <?php endif; ?>
+                                <?php if (!empty($mt['completed_at'])): ?>
+                                    <span style="color:#10b981;margin-right:8px">🏁 Fin : <?= date('d/m H:i', strtotime($mt['completed_at'])) ?></span>
+                                <?php endif; ?>
+                                <?php if (!empty($mt['link_url'])): ?>
+                                    <a href="<?= htmlspecialchars($mt['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="color:var(--info)" title="Lien externe">🔗 Lien</a>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                        <td style="font-weight:600;color:var(--text-muted);font-size:12.5px"><?= ((float)$mt['hours_spent'] > 0) ? number_format((float)$mt['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
+                        <td><span class="badge <?= statusBadge($mt['status']) ?>"><?= htmlspecialchars($mt['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td style="text-align:right;white-space:nowrap">
+                            <?php if ($stNorm === 'a faire' || $stNorm === 'à faire'): ?>
+                                <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline;margin:0">
+                                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                    <input type="hidden" name="task_id" value="<?= $mt['id'] ?>">
+                                    <input type="hidden" name="redirect" value="/gtm-tracker/my-activities.php">
+                                    <button type="submit" class="btn btn-sm" style="background:#6366f1;color:#fff;padding:3px 8px;font-size:11px;font-weight:700" title="Commencer cette tâche">
+                                        ▶️ Démarrer
+                                    </button>
+                                </form>
+                            <?php elseif ($stNorm === 'en cours'): ?>
+                                <a href="/gtm-tracker/tasks/finish.php?id=<?= $mt['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;padding:3px 8px;font-size:11px;font-weight:700" title="Terminer cette tâche">
+                                    🏁 Terminer
+                                </a>
+                            <?php endif; ?>
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $mt['id'] ?>" class="btn btn-secondary btn-sm" style="padding:3px 7px" title="Voir les détails">👁️</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class="grid-2" style="margin-top:24px">

@@ -33,6 +33,16 @@ $pPendingActions = $db->query("SELECT COUNT(*) FROM actions WHERE user_id = $tar
 $pConvsCount   = $db->query("SELECT COUNT(*) FROM conversations WHERE user_id = $targetUserId")->fetchColumn();
 $pProspectsCount = $db->query("SELECT COUNT(*) FROM prospects WHERE assigned_to = $targetUserId")->fetchColumn();
 
+// Tâches & Développements de ce membre
+$pTotalTasks = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $targetUserId")->fetchColumn();
+$pDoneTasks  = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $targetUserId AND status IN ('Terminée','Terminee','termine','terminée')")->fetchColumn();
+$pTechTasks  = $db->query("SELECT COUNT(*) FROM tasks WHERE user_id = $targetUserId AND category = 'tech'")->fetchColumn();
+$pHoursTasks = $db->query("SELECT COALESCE(SUM(hours_spent), 0) FROM tasks WHERE user_id = $targetUserId")->fetchColumn();
+
+$stmtStaffTasks = $db->prepare("SELECT * FROM tasks WHERE user_id = ? ORDER BY task_date DESC, id DESC LIMIT 6");
+$stmtStaffTasks->execute([$targetUserId]);
+$staffTasks = $stmtStaffTasks->fetchAll();
+
 // Relances prioritaires (Conversations avec next_action non vide)
 $stmtNext = $db->prepare("
     SELECT c.*, p.name as prospect_name, p.company, ch.name as channel_name 
@@ -87,7 +97,9 @@ $staffProspects = $stmtPros->fetchAll();
                     <?= $staffMember['role'] === 'admin' ? '👑 Administrateur' : '👤 Collaborateur' ?>
                 </span>
                 <span style="font-size:12.5px;color:var(--text-muted)"><?= htmlspecialchars($staffMember['email'], ENT_QUOTES, 'UTF-8') ?></span>
+                <?php if (!empty($staffMember['created_at'])): ?>
                 <span style="font-size:11.5px;color:var(--text-dim)">• Inscrit le <?= date('d/m/Y', strtotime($staffMember['created_at'])) ?></span>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -104,8 +116,14 @@ $staffProspects = $stmtPros->fetchAll();
                 <?php endforeach; ?>
             </select>
         </form>
-        <?php endif; ?><?php if ($isAdm): ?>
+        <?php endif; ?>
 
+        <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="background:#8b5cf6" title="Enregistrer une tâche effectuée pour ce membre">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            + Tâche effectuée
+        </a>
+
+        <?php if ($isAdm): ?>
         <a href="/gtm-tracker/actions/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" title="Donner une action à ce collaborateur">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <?= ($isAdm && !$isViewingSelf) ? "+ Assigner une action" : "+ Nouvelle action" ?>
@@ -238,6 +256,65 @@ $staffProspects = $stmtPros->fetchAll();
             </div>
         <?php endif; ?>
     </div>
+</div>
+
+<!-- Tâches & Développements de ce collaborateur -->
+<div class="card" style="margin-bottom:24px">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+            <span class="card-title" style="margin-bottom:0">💻 Tâches &amp; Développements Réalisés</span>
+            <span class="badge badge-purple"><?= (int)$pTotalTasks ?> tâche(s) • <?= number_format((float)$pHoursTasks, 1, ',', ' ') ?> h</span>
+        </div>
+        <div style="display:flex;gap:8px">
+            <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm">+ Nouvelle tâche</a>
+            <a href="/gtm-tracker/tasks/index.php?user=<?= $targetUserId ?>" class="btn btn-secondary btn-sm">Voir tout</a>
+        </div>
+    </div>
+    <?php if (empty($staffTasks)): ?>
+        <div class="empty-state">
+            <p>Aucune tâche enregistrée pour ce membre pour le moment.</p>
+            <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="margin-top:10px">+ Consigner une première tâche</a>
+        </div>
+    <?php else: ?>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:100px">Date</th>
+                        <th>Catégorie</th>
+                        <th>Intitulé</th>
+                        <th>Temps</th>
+                        <th>Statut</th>
+                        <th style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($staffTasks as $st): 
+                        $catB = taskCategoryBadge($st['category']);
+                        $catL = taskCategoryLabel($st['category']);
+                    ?>
+                    <tr>
+                        <td style="color:var(--text-dim);font-size:12.5px"><?= date('d/m/Y', strtotime($st['task_date'])) ?></td>
+                        <td><span class="badge <?= $catB ?>"><?= htmlspecialchars($catL, ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td>
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $st['id'] ?>" style="font-weight:600">
+                                <?= htmlspecialchars($st['title'], ENT_QUOTES, 'UTF-8') ?>
+                            </a>
+                            <?php if (!empty($st['link_url'])): ?>
+                                <a href="<?= htmlspecialchars($st['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="font-size:11px;color:var(--info);margin-left:6px" title="Lien externe">🔗</a>
+                            <?php endif; ?>
+                        </td>
+                        <td style="font-weight:600;color:var(--text-muted);font-size:12.5px"><?= ((float)$st['hours_spent'] > 0) ? number_format((float)$st['hours_spent'], 1, ',', ' ') . ' h' : '—' ?></td>
+                        <td><span class="badge <?= statusBadge($st['status']) ?>"><?= htmlspecialchars($st['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td style="text-align:right">
+                            <a href="/gtm-tracker/tasks/view.php?id=<?= $st['id'] ?>" class="btn btn-secondary btn-sm" style="padding:4px 8px">👁️ Détails</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- Prospects attribués à ce collaborateur -->

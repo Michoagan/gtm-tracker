@@ -55,6 +55,7 @@ $uidFilter = $isAdm ? null : $uid;
 $baseWhere = $uidFilter ? "WHERE user_id=$uidFilter AND" : "WHERE";
 $baseWhereA = "WHERE action_date BETWEEN '$dateFrom' AND '$dateTo'" . ($uidFilter ? " AND user_id=$uidFilter" : "");
 $baseWhereC = "WHERE conversation_date BETWEEN '$dateFrom' AND '$dateTo'" . ($uidFilter ? " AND user_id=$uidFilter" : "");
+$baseWhereT = "WHERE task_date BETWEEN '$dateFrom' AND '$dateTo'" . ($uidFilter ? " AND user_id=$uidFilter" : "");
 
 $totalActions  = $db->query("SELECT COUNT(*) FROM actions $baseWhereA")->fetchColumn();
 $totalConv     = $db->query("SELECT COUNT(*) FROM conversations $baseWhereC")->fetchColumn();
@@ -64,19 +65,66 @@ $totalRdv      = $db->query("SELECT COUNT(*) FROM conversations $baseWhereC AND 
 $totalConvert  = $db->query("SELECT COUNT(*) FROM conversations $baseWhereC AND status='Converti'")->fetchColumn();
 $totalDone     = $db->query("SELECT COUNT(*) FROM actions $baseWhereA AND status='Terminee'")->fetchColumn();
 
+// Tasks metrics in report
+$totalTasksReport = $db->query("SELECT COUNT(*) FROM tasks $baseWhereT")->fetchColumn();
+$totalTasksDone   = $db->query("SELECT COUNT(*) FROM tasks $baseWhereT AND status IN ('Terminée','Terminee','termine','terminée')")->fetchColumn();
+$totalTechTasks   = $db->query("SELECT COUNT(*) FROM tasks $baseWhereT AND category='tech'")->fetchColumn();
+$totalHoursReport = $db->query("SELECT COALESCE(SUM(hours_spent),0) FROM tasks $baseWhereT")->fetchColumn();
+
+$tasksByCategory = $db->query("
+    SELECT category, COUNT(*) as count, COALESCE(SUM(hours_spent), 0) as total_hours
+    FROM tasks
+    $baseWhereT
+    GROUP BY category
+    ORDER BY count DESC
+")->fetchAll();
+
 $rateResp = $totalConv > 0 ? round(($totalResp/$totalConv)*100,1) : 0;
 $rateConv = $totalConv > 0 ? round(($totalConvert/$totalConv)*100,1) : 0;
 ?>
 
-<!-- Global stats -->
+<!-- Tasks & Solutions KPI Grid -->
+<div style="margin-bottom:24px;background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06));border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius-lg);padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="font-size:16px;font-weight:700;color:var(--text-main);margin:0">
+            💻 Bilan Tâches Effectuées &amp; Développements Solutions
+        </h3>
+        <span class="badge badge-purple"><?= (int)$totalTechTasks ?> tâches Tech / Solutions</span>
+    </div>
+    <div class="stats-grid" style="margin-bottom:0">
+        <div class="stat-card" style="--card-color:#8b5cf6;background:var(--bg-elevated)">
+            <div class="stat-label">Tâches totales</div>
+            <div class="stat-value"><?= (int)$totalTasksReport ?></div>
+            <div class="stat-sub"><?= (int)$totalTasksDone ?> terminées</div>
+        </div>
+        <div class="stat-card" style="--card-color:#10b981;background:var(--bg-elevated)">
+            <div class="stat-label">Taux d'achèvement</div>
+            <div class="stat-value"><?= $totalTasksReport > 0 ? round(($totalTasksDone / $totalTasksReport) * 100) : 0 ?>%</div>
+            <div class="stat-sub">Sur la période</div>
+        </div>
+        <div class="stat-card" style="--card-color:#a855f7;background:var(--bg-elevated)">
+            <div class="stat-label">Développement Tech</div>
+            <div class="stat-value"><?= (int)$totalTechTasks ?></div>
+            <div class="stat-sub">Code, API &amp; Infra</div>
+        </div>
+        <div class="stat-card" style="--card-color:#f59e0b;background:var(--bg-elevated)">
+            <div class="stat-label">Heures investies</div>
+            <div class="stat-value"><?= number_format((float)$totalHoursReport, 1, ',', ' ') ?> h</div>
+            <div class="stat-sub">Temps cumulé</div>
+        </div>
+    </div>
+</div>
+
+<!-- Global GTM stats -->
 <div class="stats-grid">
-    <div class="stat-card" style="--card-color:#6366f1"><div class="stat-label">Actions totales</div><div class="stat-value"><?= $totalActions ?></div><div class="stat-sub"><?= $totalDone ?> terminees</div></div>
+    <div class="stat-card" style="--card-color:#6366f1"><div class="stat-label">Actions GTM</div><div class="stat-value"><?= $totalActions ?></div><div class="stat-sub"><?= $totalDone ?> terminees</div></div>
     <div class="stat-card" style="--card-color:#3b82f6"><div class="stat-label">Conversations</div><div class="stat-value"><?= $totalConv ?></div></div>
     <div class="stat-card" style="--card-color:#8b5cf6"><div class="stat-label">Reponses</div><div class="stat-value"><?= $totalResp ?></div><div class="stat-sub">Taux: <?= $rateResp ?>%</div></div>
     <div class="stat-card" style="--card-color:#f59e0b"><div class="stat-label">Interesses</div><div class="stat-value"><?= $totalInterest ?></div></div>
     <div class="stat-card" style="--card-color:#ec4899"><div class="stat-label">Rendez-vous</div><div class="stat-value"><?= $totalRdv ?></div></div>
     <div class="stat-card" style="--card-color:#22c55e"><div class="stat-label">Conversions</div><div class="stat-value"><?= $totalConvert ?></div><div class="stat-sub">Taux: <?= $rateConv ?>%</div></div>
 </div>
+
 
 <?php if($isAdm): ?>
 <!-- By user -->

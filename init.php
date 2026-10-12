@@ -130,6 +130,24 @@ function initDatabase(): void {
         FOREIGN KEY(request_id) REFERENCES help_requests(id) ON DELETE CASCADE,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
+    $db->exec("CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        assigned_by INTEGER,
+        title TEXT NOT NULL,
+        category TEXT NOT NULL DEFAULT 'tech',
+        description TEXT,
+        result TEXT,
+        status TEXT DEFAULT 'Terminée',
+        priority TEXT DEFAULT 'Normale',
+        task_date DATE NOT NULL,
+        hours_spent REAL DEFAULT 0,
+        link_url TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(assigned_by) REFERENCES users(id) ON DELETE SET NULL
+    )");
 
     // Seed users
     $seedUsers = [

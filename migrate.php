@@ -154,6 +154,23 @@ $tables = [
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         comment TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
+
+    'tasks' => "CREATE TABLE IF NOT EXISTS tasks (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        assigned_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        title TEXT NOT NULL,
+        category TEXT NOT NULL DEFAULT 'tech',
+        description TEXT,
+        result TEXT,
+        status TEXT DEFAULT 'Terminée',
+        priority TEXT DEFAULT 'Normale',
+        task_date DATE NOT NULL,
+        hours_spent NUMERIC DEFAULT 0,
+        link_url TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"
 ];
 
@@ -165,7 +182,7 @@ foreach ($tables as $name => $sql) {
 echo "\n[4/4] Migration des donnees...\n";
 
 // Ordre d'insertion pour respecter les cles etrangeres
-$order = ['users', 'strategies', 'channels', 'prospects', 'actions', 'conversations', 'attachments', 'activity_log'];
+$order = ['users', 'strategies', 'channels', 'prospects', 'actions', 'conversations', 'tasks', 'attachments', 'activity_log'];
 
 foreach ($order as $table) {
     // Vider la table distante en cas de re-execution
