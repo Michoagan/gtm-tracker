@@ -60,10 +60,12 @@ $myTasks = $stmtMyTasks->fetchAll();
         <p class="page-header-subtitle">Espace personnel de <?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></p>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <?php if ($isAdm): ?>
         <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="background:#8b5cf6">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Enregistrer une tâche
+            + Donner une tâche
         </a>
+        <?php endif; ?>
         <a href="/gtm-tracker/tasks/index.php?view=mine" class="btn btn-secondary">
             📋 Mes tâches
         </a>
@@ -112,14 +114,19 @@ $myTasks = $stmtMyTasks->fetchAll();
             <span class="badge badge-purple"><?= (int)$myTotalTasks ?> tâche(s) au total • <?= number_format((float)$myHoursTasks, 1, ',', ' ') ?> h</span>
         </div>
         <div style="display:flex;gap:8px">
-            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm">+ Ajouter une tâche</a>
+            <?php if ($isAdm): ?>
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm">+ Donner une tâche</a>
+            <?php endif; ?>
             <a href="/gtm-tracker/tasks/index.php?view=mine" class="btn btn-secondary btn-sm">Voir tout</a>
         </div>
     </div>
     <?php if (empty($myTasks)): ?>
         <div class="empty-state">
-            <p>Vous n'avez pas encore consigné de tâches personnelles.</p>
-            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm" style="margin-top:10px">+ Enregistrer ma première tâche (Tech, GTM...)</a>
+            <p style="color:#000000;font-weight:600">Aucune tâche ne vous a encore été attribuée par l'administrateur.</p>
+            <p style="color:#1e293b;font-size:13px">Dès que l'administrateur vous donnera une tâche, elle apparaîtra ici avec son suivi de réalisation.</p>
+            <?php if ($isAdm): ?>
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm" style="margin-top:10px">+ Donner une tâche</a>
+            <?php endif; ?>
         </div>
     <?php else: ?>
         <div class="table-wrapper">

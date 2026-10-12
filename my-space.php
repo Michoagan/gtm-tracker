@@ -118,9 +118,9 @@ $staffProspects = $stmtPros->fetchAll();
         </form>
         <?php endif; ?>
 
-        <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="background:#8b5cf6" title="Enregistrer une tâche effectuée pour ce membre">
+        <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="background:#8b5cf6" title="Donner une tâche à ce collaborateur">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Tâche effectuée
+            + Donner une tâche
         </a>
 
         <?php if ($isAdm): ?>
@@ -266,14 +266,14 @@ $staffProspects = $stmtPros->fetchAll();
             <span class="badge badge-purple"><?= (int)$pTotalTasks ?> tâche(s) • <?= number_format((float)$pHoursTasks, 1, ',', ' ') ?> h</span>
         </div>
         <div style="display:flex;gap:8px">
-            <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm">+ Nouvelle tâche</a>
+            <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm">+ Donner une tâche</a>
             <a href="/gtm-tracker/tasks/index.php?user=<?= $targetUserId ?>" class="btn btn-secondary btn-sm">Voir tout</a>
         </div>
     </div>
     <?php if (empty($staffTasks)): ?>
         <div class="empty-state">
             <p>Aucune tâche enregistrée pour ce membre pour le moment.</p>
-            <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="margin-top:10px">+ Consigner une première tâche</a>
+            <a href="/gtm-tracker/tasks/create.php?user_id=<?= $targetUserId ?>" class="btn btn-primary btn-sm" style="margin-top:10px">+ Donner une première tâche</a>
         </div>
     <?php else: ?>
         <div class="table-wrapper">

@@ -80,21 +80,23 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
 <div class="page-header">
     <div>
         <h2 class="page-header-title">Gestion des Tâches</h2>
-        <p class="page-header-sub">Suivez et consignez toutes les tâches effectuées (Développement Tech, GTM, Produit, etc.)</p>
+        <p class="page-header-sub"><?= $isAdm ? 'Attribuez les missions à vos collaborateurs et suivez leur avancement en temps réel' : 'Consultez les missions qui vous sont attribuées par l\'administrateur, marquez votre début et votre fin' ?></p>
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <div style="display:inline-flex;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px">
-            <a href="?view=all<?= $fCategory ? '&category='.urlencode($fCategory) : '' ?>" class="btn btn-sm <?= ($fView !== 'mine' && $fUser === '') ? 'btn-primary' : 'btn-secondary' ?>" style="border:none;padding:5px 12px">
+        <div style="display:inline-flex;background:var(--bg-elevated);border:1.5px solid #cbd5e1;border-radius:var(--radius-sm);padding:2px">
+            <a href="?view=all<?= $fCategory ? '&category='.urlencode($fCategory) : '' ?>" class="btn btn-sm <?= ($fView !== 'mine' && $fUser === '') ? 'btn-primary' : 'btn-secondary' ?>" style="border:none;padding:5px 12px;font-weight:600">
                 👥 Toute l'équipe
             </a>
-            <a href="?view=mine&user=<?= $uid ?><?= $fCategory ? '&category='.urlencode($fCategory) : '' ?>" class="btn btn-sm <?= ($fView === 'mine' || (string)$fUser === (string)$uid) ? 'btn-primary' : 'btn-secondary' ?>" style="border:none;padding:5px 12px">
+            <a href="?view=mine&user=<?= $uid ?><?= $fCategory ? '&category='.urlencode($fCategory) : '' ?>" class="btn btn-sm <?= ($fView === 'mine' || (string)$fUser === (string)$uid) ? 'btn-primary' : 'btn-secondary' ?>" style="border:none;padding:5px 12px;font-weight:600">
                 👤 Mes tâches
             </a>
         </div>
-        <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary">
+        <?php if ($isAdm): ?>
+        <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="font-weight:700">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <?= $isAdm ? '+ Donner / Créer une tâche' : '+ Enregistrer une tâche' ?>
+            + Donner une tâche à un collaborateur
         </a>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -217,14 +219,22 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
 
     <?php if (empty($tasks)): ?>
         <div style="padding:48px 20px;text-align:center">
-            <div style="font-size:40px;margin-bottom:12px">📝</div>
-            <h4 style="color:var(--text-main);margin-bottom:6px">Aucune tâche trouvée</h4>
-            <p style="color:var(--text-muted);font-size:13.5px;max-width:450px;margin:0 auto 18px">
-                <?= ($fSearch || $fCategory || $fStatus || $fUser) ? 'Aucune tâche ne correspond à vos filtres actuels.' : 'Commencez à consigner vos réalisations (développement tech, commercial, support...).' ?>
+            <div style="font-size:40px;margin-bottom:12px">📋</div>
+            <h4 style="color:#000000;font-weight:700;margin-bottom:6px">Aucune tâche trouvée</h4>
+            <p style="color:#1e293b;font-size:14px;max-width:480px;margin:0 auto 18px;font-weight:500">
+                <?php if ($fSearch || $fCategory || $fStatus || $fUser): ?>
+                    Aucune tâche ne correspond à vos filtres actuels.
+                <?php elseif ($isAdm): ?>
+                    Vous n'avez pas encore attribué de tâche. Cliquez sur le bouton ci-dessous pour donner une première mission à un collaborateur.
+                <?php else: ?>
+                    Aucune tâche ne vous a encore été attribuée par l'administrateur. Dès qu'une tâche vous sera confiée, elle apparaîtra ici avec vos boutons pour démarrer et terminer.
+                <?php endif; ?>
             </p>
-            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary">
-                + Enregistrer ma première tâche
+            <?php if ($isAdm): ?>
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="font-weight:700">
+                + Donner une première tâche
             </a>
+            <?php endif; ?>
         </div>
     <?php else: ?>
         <div class="table-container">
@@ -365,10 +375,12 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                             <a href="/gtm-tracker/tasks/edit.php?id=<?= $t['id'] ?>" class="btn btn-secondary btn-sm" style="padding:4px 8px" title="Modifier">
                                 ✏️
                             </a>
+                            <?php endif; ?>
+                            <?php if ($isAdm): ?>
                             <form method="POST" action="/gtm-tracker/tasks/delete.php" style="display:inline" onsubmit="return confirm('Confirmer la suppression de cette tâche ?');">
                                 <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                 <input type="hidden" name="id" value="<?= $t['id'] ?>">
-                                <button type="submit" class="btn btn-secondary btn-sm" style="padding:4px 8px;color:var(--danger)" title="Supprimer">
+                                <button type="submit" class="btn btn-secondary btn-sm" style="padding:4px 8px;color:var(--danger)" title="Supprimer (Admin)">
                                     🗑️
                                 </button>
                             </form>

@@ -55,10 +55,12 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
         </div>
         <h2 class="page-header-title"><?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?></h2>
         <p class="page-header-sub">
-            Réalisé par <strong><?= htmlspecialchars($task['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
+            Attribuée à <strong><?= htmlspecialchars($task['user_name'], ENT_QUOTES, 'UTF-8') ?></strong>
             le <?= date('d/m/Y', strtotime($task['task_date'])) ?>
             <?php if (!empty($task['assigned_by_name'])): ?>
-                • Assigné par <?= htmlspecialchars($task['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?>
+                • Donnée par <strong><?= htmlspecialchars($task['assigned_by_name'], ENT_QUOTES, 'UTF-8') ?> (Admin)</strong>
+            <?php else: ?>
+                • Donnée par l'Administrateur
             <?php endif; ?>
         </p>
     </div>
@@ -94,6 +96,7 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
             <a href="/gtm-tracker/tasks/edit.php?id=<?= $task['id'] ?>" class="btn btn-secondary">
                 ✏️ Modifier
             </a>
+            <?php if ($isAdm): ?>
             <form method="POST" action="/gtm-tracker/tasks/delete.php" style="display:inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');">
                 <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                 <input type="hidden" name="id" value="<?= $task['id'] ?>">
@@ -101,6 +104,7 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
                     🗑️ Supprimer
                 </button>
             </form>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
@@ -422,9 +426,11 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
             </div>
         </div>
 
-        <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="width:100%;text-align:center">
-            + Enregistrer une autre tâche
+        <?php if ($isAdm): ?>
+        <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="width:100%;text-align:center;font-weight:700">
+            + Donner une autre tâche
         </a>
+        <?php endif; ?>
     </div>
 </div>
 

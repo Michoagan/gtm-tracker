@@ -93,10 +93,12 @@ $recentTasks = $db->query("
         <p class="page-header-sub">Pilotage de l'équipe : Tâches &amp; Développements Tech, Actions &amp; Stratégie GTM</p>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <?php if ($isAdm): ?>
         <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary" style="background:#8b5cf6">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Nouvelle tâche
+            + Donner une tâche
         </a>
+        <?php endif; ?>
         <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary">
             📋 Toutes les tâches
         </a>
@@ -166,9 +168,11 @@ $recentTasks = $db->query("
             </div>
         </div>
         <div style="display:flex;gap:8px">
+            <?php if ($isAdm): ?>
             <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm" style="background:#8b5cf6">
-                + Ajouter une tâche
+                + Donner une tâche
             </a>
+            <?php endif; ?>
             <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary btn-sm">
                 Consulter les tâches →
             </a>
@@ -265,7 +269,9 @@ $recentTasks = $db->query("
             <span class="badge badge-purple"><?= count($recentTasks) ?> récentes</span>
         </div>
         <div style="display:flex;gap:8px">
-            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm">+ Nouvelle tâche</a>
+            <?php if ($isAdm): ?>
+            <a href="/gtm-tracker/tasks/create.php" class="btn btn-primary btn-sm">+ Donner une tâche</a>
+            <?php endif; ?>
             <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary btn-sm">Voir tout</a>
         </div>
     </div>
@@ -273,7 +279,13 @@ $recentTasks = $db->query("
     <div class="empty-state">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="m9 14 2 2 4-4"/></svg>
         <h3>Aucune tâche enregistrée</h3>
-        <p><a href="/gtm-tracker/tasks/create.php">Enregistrer une première tâche effectuée</a></p>
+        <p>
+            <?php if ($isAdm): ?>
+                <a href="/gtm-tracker/tasks/create.php">Donner une première tâche à un collaborateur</a>
+            <?php else: ?>
+                Aucune tâche ne vous a encore été attribuée par l'administrateur.
+            <?php endif; ?>
+        </p>
     </div>
     <?php else: ?>
     <div class="table-wrapper">

@@ -1,23 +1,39 @@
 <?php
-$pageTitle = 'Enregistrer une tâche';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../auth/auth.php';
+requireLogin();
+
+// Seul l'administrateur peut donner et assigner des tâches
+if (!isAdmin()) {
+    $_SESSION['flash'] = [
+        'type' => 'warning',
+        'message' => 'Accès restreint : seul l\'administrateur peut donner et attribuer des tâches aux collaborateurs.'
+    ];
+    header('Location: /gtm-tracker/tasks/index.php');
+    exit;
+}
+
+$pageTitle = 'Donner une tâche à un collaborateur';
 require_once __DIR__ . '/../includes/header.php';
 $db = getDB();
 $uid = (int)$_SESSION['user_id'];
-$isAdm = isAdmin();
+$isAdm = true;
 
 $allMembers = array_values(getMembers());
 $categories = getTaskCategories();
-$statuses   = ['Terminée', 'En cours', 'A faire', 'Bloquée'];
+$statuses   = ['A faire', 'En cours', 'Terminée', 'Bloquée'];
 $priorities = ['Normale', 'Haute', 'Urgente', 'Basse'];
 
-$targetUser = isset($_GET['user_id']) && $isAdm ? (int)$_GET['user_id'] : $uid;
+$targetUser = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 $preCategory = isset($_GET['category']) ? trim($_GET['category']) : 'tech';
 ?>
 
 <div class="page-header">
     <div>
-        <h2 class="page-header-title">Enregistrer une tâche</h2>
-        <p class="page-header-sub">Consignez vos réalisations (développement tech, commercial, support, etc.)</p>
+        <h2 class="page-header-title">Donner une tâche à un collaborateur</h2>
+        <p class="page-header-sub">Seul l'administrateur attribue les missions (développement tech, commercial, support, etc.) aux membres de l'équipe.</p>
     </div>
     <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary">
         ← Retour aux tâches
@@ -30,33 +46,32 @@ $preCategory = isset($_GET['category']) ? trim($_GET['category']) : 'tech';
             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
 
             <div class="form-grid">
-                <!-- Titre -->
-                <div class="form-group form-full">
-                    <label class="form-label" style="font-size:13.5px;font-weight:600">
-                        Intitulé de la tâche / Mission *
+                <!-- Collaborateur assigné (Obligatoire et mis en avant) -->
+                <div class="form-group form-full" style="background:#f8fafc;padding:18px;border-radius:var(--radius-sm);border:2px solid #6366f1">
+                    <label class="form-label" style="color:#000000;font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px">
+                        👤 Collaborateur qui doit réaliser cette tâche *
                     </label>
-                    <input type="text" name="title" class="form-control" style="font-size:14.5px" placeholder="Ex: Développement du module de facturation, Refonte API REST, Résolution bug d'authentification..." required autofocus>
-                    <span class="form-hint">Décrivez la tâche que le collaborateur doit réaliser.</span>
-                </div>
-
-                <!-- Utilisateur assigné (Mise en avant pour l'Admin) -->
-                <?php if ($isAdm): ?>
-                <div class="form-group form-full" style="background:rgba(99,102,241,0.08);padding:16px;border-radius:var(--radius-sm);border:1px solid rgba(99,102,241,0.25)">
-                    <label class="form-label" style="color:var(--primary);font-weight:700;font-size:14px">
-                        👤 Membre assigné à cette tâche *
-                    </label>
-                    <select name="user_id" class="form-control" style="font-weight:600;font-size:14px">
+                    <select name="user_id" class="form-control" style="font-weight:700;font-size:15px;color:#000000;background:#ffffff;border:1.5px solid #cbd5e1" required autofocus>
+                        <option value="" disabled <?= empty($targetUser) ? 'selected' : '' ?>>-- Sélectionner le membre de l'équipe --</option>
                         <?php foreach ($allMembers as $m): ?>
                         <option value="<?= $m['id'] ?>" <?= ($targetUser === (int)$m['id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8') ?> (<?= $m['role'] === 'admin' ? 'Admin' : 'Collaborateur' ?>)
                         </option>
                         <?php endforeach; ?>
                     </select>
-                    <span class="form-hint" style="color:var(--text-muted)">Le collaborateur verra cette tâche dans sa liste, cliquera sur <strong>« Commencer »</strong> à son démarrage puis sur <strong>« Terminer »</strong> une fois le travail fini.</span>
+                    <span class="form-hint" style="color:#1e293b;margin-top:6px;display:block;font-size:13px;font-weight:500">
+                        Ce collaborateur verra la tâche dans son espace personnel. Il cliquera sur <strong>« ▶️ Commencer »</strong> à son démarrage puis sur <strong>« ✅ Terminer »</strong> pour consigner ses livrables et heures une fois fini.
+                    </span>
                 </div>
-                <?php else: ?>
-                <input type="hidden" name="user_id" value="<?= $uid ?>">
-                <?php endif; ?>
+
+                <!-- Titre -->
+                <div class="form-group form-full">
+                    <label class="form-label" style="font-size:14px;font-weight:700;color:#000000">
+                        Intitulé de la tâche / Mission *
+                    </label>
+                    <input type="text" name="title" class="form-control" style="font-size:14.5px;color:#000000;border:1.5px solid #cbd5e1" placeholder="Ex: Développement du module de facturation, Refonte API REST, Résolution bug d'authentification..." required>
+                    <span class="form-hint" style="color:#1e293b">Mission claire confiée au collaborateur.</span>
+                </div>
 
                 <!-- Catégorie -->
                 <div class="form-group">
@@ -147,8 +162,8 @@ $preCategory = isset($_GET['category']) ? trim($_GET['category']) : 'tech';
 
             <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;border-top:1px solid var(--border);padding-top:18px">
                 <a href="/gtm-tracker/tasks/index.php" class="btn btn-secondary">Annuler</a>
-                <button type="submit" class="btn btn-primary" style="padding:10px 24px;font-size:14px">
-                    💾 Enregistrer la tâche
+                <button type="submit" class="btn btn-primary" style="padding:10px 24px;font-size:14.5px;font-weight:700">
+                    🚀 Attribuer cette tâche au collaborateur
                 </button>
             </div>
         </form>

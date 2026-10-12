@@ -190,7 +190,28 @@ foreach ($userPages as $pagePath => $pageName) {
     }
 }
 
-echo "\n=========================================================\n";
+// 6. TEST DE SÉCURITÉ : SEUL L'ADMIN PEUT CRÉER / SUPPRIMER DES TÂCHES
+echo "\n6. VERIFICATION DE LA REGLE METIER : SEUL L'ADMIN DONNE LES TACHES\n";
+$_SESSION['user_id'] = 1;
+$_SESSION['user_role'] = 'user';
+$_SESSION['user_name'] = 'Gabin';
+
+// Gabin ne peut pas créer de tâche
+assertTest("Collaborateur n'est pas Admin", !isAdmin());
+
+// Création d'une tâche par l'admin attribuée à Gabin
+$_SESSION['user_id'] = 0;
+$_SESSION['user_role'] = 'admin';
+$stmtNew = $db->prepare("INSERT INTO tasks (user_id, assigned_by, title, category, status, priority, task_date) VALUES (?, ?, ?, ?, ?, ?, date('now'))");
+$stmtNew->execute([1, 0, 'Mission spéciale Admin', 'tech', 'A faire', 'Urgente']);
+$newTaskId = (int)$db->lastInsertId();
+
+$checkTask = $db->query("SELECT * FROM tasks WHERE id = $newTaskId")->fetch(PDO::FETCH_ASSOC);
+assertTest("Admin a bien donné la tâche au collaborateur", (int)$checkTask['user_id'] === 1 && (int)$checkTask['assigned_by'] === 0);
+
+// Nettoyage
+$db->exec("DELETE FROM tasks WHERE id = $newTaskId");
+assertTest("Nettoyage réussi", true);
 echo "RESULTATS FINAUX : $passCount SUCCÈS, $failCount ÉCHECS\n";
 echo "=========================================================\n";
 

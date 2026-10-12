@@ -32,8 +32,10 @@ if (!$task) {
 $currentUid = (int)$_SESSION['user_id'];
 $isAdm      = isAdmin();
 
-if (!$isAdm && (int)$task['user_id'] !== $currentUid) {
-    die('Accès refusé');
+if (!$isAdm) {
+    $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Action refusée : seul l\'administrateur peut supprimer une tâche.'];
+    header('Location: /gtm-tracker/tasks/index.php');
+    exit;
 }
 
 // Remove attachments files

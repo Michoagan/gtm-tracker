@@ -60,12 +60,14 @@ $attachments = $stmtAtt->fetchAll();
                 <!-- Titre -->
                 <div class="form-group form-full">
                     <label class="form-label" style="font-weight:600">Intitulé de la tâche *</label>
-                    <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?>" required>
+                    <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?>" <?= !$isAdm ? 'readonly style="background:#f1f5f9;color:#000000;font-weight:700"' : '' ?> required>
+                    <?php if (!$isAdm): ?><span class="form-hint" style="color:#1e293b">Intitulé fixé par l'administrateur.</span><?php endif; ?>
                 </div>
 
                 <!-- Catégorie -->
                 <div class="form-group">
                     <label class="form-label" style="font-weight:600">Domaine / Catégorie *</label>
+                    <?php if ($isAdm): ?>
                     <select name="category" class="form-control" required style="font-weight:600">
                         <?php foreach ($categories as $catKey => $catInfo): ?>
                         <option value="<?= $catKey ?>" <?= ($task['category'] === $catKey) ? 'selected' : '' ?>>
@@ -73,21 +75,25 @@ $attachments = $stmtAtt->fetchAll();
                         </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php else: ?>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars(taskCategoryLabel($task['category']), ENT_QUOTES, 'UTF-8') ?>" disabled style="background:#f1f5f9;color:#000000;font-weight:600">
+                    <input type="hidden" name="category" value="<?= htmlspecialchars($task['category'], ENT_QUOTES, 'UTF-8') ?>">
+                    <?php endif; ?>
                 </div>
 
-                <!-- Utilisateur assigné -->
+                <!-- Collaborateur assigné -->
                 <div class="form-group">
-                    <label class="form-label" style="font-weight:600">Réalisé par *</label>
+                    <label class="form-label" style="font-weight:600">Collaborateur assigné *</label>
                     <?php if ($isAdm): ?>
                         <select name="user_id" class="form-control" style="font-weight:600">
                             <?php foreach ($allMembers as $m): ?>
                             <option value="<?= $m['id'] ?>" <?= ((int)$task['user_id'] === (int)$m['id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8') ?>
+                                <?= htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8') ?> (<?= $m['role'] === 'admin' ? 'Admin' : 'Collaborateur' ?>)
                             </option>
                             <?php endforeach; ?>
                         </select>
                     <?php else: ?>
-                        <input type="text" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?>" disabled style="background:var(--bg-elevated);color:var(--text-main);font-weight:600">
+                        <input type="text" class="form-control" value="<?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?>" disabled style="background:#f1f5f9;color:#000000;font-weight:600">
                         <input type="hidden" name="user_id" value="<?= $task['user_id'] ?>">
                     <?php endif; ?>
                 </div>
@@ -95,13 +101,13 @@ $attachments = $stmtAtt->fetchAll();
                 <!-- Date -->
                 <div class="form-group">
                     <label class="form-label" style="font-weight:600">Date d'attribution / Prévue *</label>
-                    <input type="date" name="task_date" class="form-control" value="<?= htmlspecialchars($task['task_date'], ENT_QUOTES, 'UTF-8') ?>" required>
+                    <input type="date" name="task_date" class="form-control" value="<?= htmlspecialchars($task['task_date'], ENT_QUOTES, 'UTF-8') ?>" <?= !$isAdm ? 'readonly style="background:#f1f5f9;color:#000000"' : '' ?> required>
                 </div>
 
                 <!-- Date d'échéance -->
                 <div class="form-group">
                     <label class="form-label" style="font-weight:600">Date limite / Échéance</label>
-                    <input type="date" name="due_date" class="form-control" value="<?= htmlspecialchars($task['due_date'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="date" name="due_date" class="form-control" value="<?= htmlspecialchars($task['due_date'] ?? '', ENT_QUOTES, 'UTF-8') ?>" <?= !$isAdm ? 'readonly style="background:#f1f5f9;color:#000000"' : '' ?>>
                 </div>
 
                 <!-- Temps passé -->

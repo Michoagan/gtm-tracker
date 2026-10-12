@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../auth/auth.php';
 requireLogin();
 require_once __DIR__ . '/../config/database.php';
@@ -15,8 +17,24 @@ if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
 
 $currentUid = (int)$_SESSION['user_id'];
 $isAdm      = isAdmin();
-$targetUser = (!empty($_POST['user_id']) && $isAdm) ? (int)$_POST['user_id'] : $currentUid;
-$assignedBy = ($targetUser !== $currentUid) ? $currentUid : null;
+
+// Seul l'administrateur peut donner et attribuer des tâches
+if (!$isAdm) {
+    $_SESSION['flash'] = [
+        'type' => 'danger',
+        'message' => 'Action refusée : seul l\'administrateur peut donner et attribuer des tâches aux collaborateurs.'
+    ];
+    header('Location: /gtm-tracker/tasks/index.php');
+    exit;
+}
+
+$targetUser = !empty($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+if ($targetUser <= 0) {
+    $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Veuillez sélectionner le collaborateur à qui assigner cette tâche.'];
+    header('Location: /gtm-tracker/tasks/create.php');
+    exit;
+}
+$assignedBy = $currentUid;
 
 $db         = getDB();
 $title      = trim($_POST['title'] ?? '');
@@ -78,7 +96,7 @@ if (!empty($_FILES['attachment']['name']) && $_FILES['attachment']['error'] === 
     }
 }
 
-logActivity($currentUid, 'creation_tache', "Tâche ajoutée: $title (Catégorie: $category, ID: $taskId)");
-$_SESSION['flash'] = ['type' => 'success', 'message' => 'Tâche enregistrée avec succès !'];
+logActivity($currentUid, 'creation_tache', "Tâche attribuée: $title (Collaborateur ID: $targetUser, Catégorie: $category, ID: $taskId)");
+$_SESSION['flash'] = ['type' => 'success', 'message' => 'Tâche attribuée avec succès au collaborateur !'];
 header('Location: /gtm-tracker/tasks/view.php?id=' . $taskId);
 exit;

@@ -49,6 +49,16 @@ $linkUrl    = trim($_POST['link_url'] ?? '');
 
 $targetUser = (!empty($_POST['user_id']) && $isAdm) ? (int)$_POST['user_id'] : (int)$task['user_id'];
 
+// Si l'utilisateur n'est pas admin, il ne peut pas modifier le cadrage de la mission fixé par l'admin
+if (!$isAdm) {
+    $title      = $task['title'];
+    $category   = $task['category'];
+    $targetUser = (int)$task['user_id'];
+    $taskDate   = $task['task_date'];
+    $dueDate    = $task['due_date'];
+    $priority   = $task['priority'];
+}
+
 if (empty($title)) {
     $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Le titre de la tâche est obligatoire.'];
     header('Location: /gtm-tracker/tasks/edit.php?id=' . $id);
