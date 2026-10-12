@@ -73,7 +73,8 @@ $recentActions = $db->query("
 $whereTask = $isAdm ? '' : "WHERE user_id = $uid";
 $totalTasks = $db->query("SELECT COUNT(*) FROM tasks $whereTask")->fetchColumn();
 $techTasks  = $db->query("SELECT COUNT(*) FROM tasks " . ($isAdm ? "WHERE category = 'tech'" : "WHERE user_id = $uid AND category = 'tech'"))->fetchColumn();
-$doneTasks  = $db->query("SELECT COUNT(*) FROM tasks " . ($isAdm ? "WHERE status IN ('Terminée','Terminee','termine','terminée')" : "WHERE user_id = $uid AND status IN ('Terminée','Terminee','termine','terminée')"))->fetchColumn();
+$doneTasks  = $db->query("SELECT COUNT(*) FROM tasks " . ($isAdm ? "WHERE status IN ('Terminée','Terminee','termine','terminée','Validée','Validee')" : "WHERE user_id = $uid AND status IN ('Terminée','Terminee','termine','terminée','Validée','Validee')"))->fetchColumn();
+$pendingValidation = $isAdm ? (int)$db->query("SELECT COUNT(*) FROM tasks WHERE status IN ('Terminée','Terminee','termine','terminée') AND validated_at IS NULL")->fetchColumn() : 0;
 $totalHours = $db->query("SELECT COALESCE(SUM(hours_spent), 0) FROM tasks $whereTask")->fetchColumn();
 
 // Recent tasks
@@ -114,6 +115,23 @@ $recentTasks = $db->query("
         <?php endif; ?>
     </div>
 </div>
+
+<?php if ($pendingValidation > 0 && $isAdm): ?>
+<div class="card" style="margin-bottom:24px;background:#ecfdf5;border:2px solid #10b981;border-radius:14px;padding:16px 20px;box-shadow:0 4px 16px rgba(16,185,129,0.15)">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:28px">👑</span>
+            <div>
+                <strong style="color:#064e3b;font-size:15px"><?= $pendingValidation ?> tâche(s) terminée(s) en attente de votre validation</strong>
+                <div style="color:#065f46;font-size:13px;font-weight:600">Des collaborateurs ont finalisé leurs missions et attendent votre validation officielle.</div>
+            </div>
+        </div>
+        <a href="/gtm-tracker/tasks/index.php?status=Termin%C3%A9e" class="btn btn-sm btn-primary" style="background:#059669;font-weight:800;border:none">
+            Voir &amp; Valider les tâches →
+        </a>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- Stats grid -->
 <div class="stats-grid">
@@ -337,7 +355,9 @@ $recentTasks = $db->query("
                     <td style="min-width:145px">
                         <?php 
                             $rtNorm = mb_strtolower($rt['status'], 'UTF-8');
-                            $rtDone = in_array($rtNorm, ['terminée', 'terminee', 'termine']);
+                            $rtValidated = ($rtNorm === 'validée' || $rtNorm === 'validee' || !empty($rt['validated_at']));
+                            $rtDone = in_array($rtNorm, ['terminée', 'terminee', 'termine', 'validée', 'validee']);
+                            $rtFinishedPending = in_array($rtNorm, ['terminée', 'terminee', 'termine']) && !$rtValidated;
                             $rtCanManage = ($isAdm || (int)$rt['user_id'] === $uid);
                         ?>
                         <?php if ($rtCanManage): ?>
@@ -345,10 +365,13 @@ $recentTasks = $db->query("
                             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                             <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
                             <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
-                            <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($rtDone ? '#059669' : ($rtNorm === 'en cours' ? '#4f46e5' : ($rtNorm === 'bloquée' || $rtNorm === 'bloquee' ? '#dc2626' : '#cbd5e1'))) ?>;color:#000000" title="Changer le statut en 1 clic">
+                            <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:4px 24px 4px 8px;font-size:12px;font-weight:700;border-radius:16px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($rtValidated ? '#059669' : ($rtFinishedPending ? '#d97706' : ($rtNorm === 'en cours' ? '#4f46e5' : ($rtNorm === 'bloquée' || $rtNorm === 'bloquee' ? '#dc2626' : '#cbd5e1')))) ?>;color:#000000" title="Changer le statut en 1 clic">
                                 <option value="A faire" <?= ($rtNorm === 'a faire' || $rtNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
                                 <option value="En cours" <?= ($rtNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
-                                <option value="Terminée" <?= ($rtDone) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                <option value="Terminée" <?= ($rtFinishedPending) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                <?php if ($isAdm): ?>
+                                <option value="Validée" <?= ($rtValidated) ? 'selected' : '' ?>>✅ Validée (Admin)</option>
+                                <?php endif; ?>
                                 <option value="Bloquée" <?= ($rtNorm === 'bloquée' || $rtNorm === 'bloquee') ? 'selected' : '' ?>>🛑 Bloquée</option>
                             </select>
                         </form>
@@ -358,7 +381,17 @@ $recentTasks = $db->query("
                     </td>
                     <td style="text-align:right;white-space:nowrap">
                         <?php if ($rtCanManage): ?>
-                            <?php if ($rtNorm === 'a faire' || $rtNorm === 'à faire'): ?>
+                            <?php if ($isAdm && $rtFinishedPending): ?>
+                                <form method="POST" action="/gtm-tracker/tasks/validate.php" style="display:inline;margin:0">
+                                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                    <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">
+                                    <input type="hidden" name="action" value="validate">
+                                    <input type="hidden" name="redirect" value="/gtm-tracker/dashboard.php">
+                                    <button type="submit" class="btn btn-sm" style="background:#059669;color:#fff;padding:3px 9px;font-size:11.5px;font-weight:800;border-radius:5px;border:none" title="Valider la tâche">
+                                        ✅ Valider
+                                    </button>
+                                </form>
+                            <?php elseif ($rtNorm === 'a faire' || $rtNorm === 'à faire'): ?>
                                 <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline;margin:0">
                                     <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                     <input type="hidden" name="task_id" value="<?= $rt['id'] ?>">

@@ -36,15 +36,28 @@ if (!$isAdm && (int)$task['user_id'] !== $currentUid) {
     die('Accès refusé');
 }
 
-$allowedStatuses = ['A faire', 'En cours', 'Terminée', 'Bloquée'];
+$allowedStatuses = $isAdm 
+    ? ['A faire', 'En cours', 'Terminée', 'Validée', 'Bloquée'] 
+    : ['A faire', 'En cours', 'Terminée', 'Bloquée'];
+
 $requestedStatus = isset($_POST['new_status']) ? trim($_POST['new_status']) : '';
 
 if (!empty($requestedStatus) && in_array($requestedStatus, $allowedStatuses)) {
     $newStatus = $requestedStatus;
 } else {
     $currentStatus = mb_strtolower($task['status'], 'UTF-8');
-    $isDone = in_array($currentStatus, ['terminée', 'terminee', 'termine']);
+    $isDone = in_array($currentStatus, ['terminée', 'terminee', 'termine', 'validée', 'validee']);
     $newStatus = $isDone ? 'En cours' : 'Terminée';
+}
+
+if ($newStatus === 'Validée' && !$isAdm) {
+    $_SESSION['flash'] = [
+        'type' => 'danger',
+        'message' => 'Action refusée : seul l\'administrateur peut valider une tâche terminée.'
+    ];
+    $redirect = !empty($_POST['redirect']) ? $_POST['redirect'] : '/gtm-tracker/tasks/index.php';
+    header('Location: ' . $redirect);
+    exit;
 }
 
 $now = date('Y-m-d H:i:s');
@@ -57,6 +70,11 @@ if ($newStatus === 'En cours') {
     $hours = ((float)$task['hours_spent'] > 0) ? (float)$task['hours_spent'] : round($diffSec / 3600, 2);
     $db->prepare("UPDATE tasks SET status = ?, completed_at = COALESCE(completed_at, ?), hours_spent = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
        ->execute([$newStatus, $now, $hours, $taskId]);
+} elseif ($newStatus === 'Validée') {
+    $started = $task['started_at'] ?: $task['created_at'] ?: $now;
+    $completed = $task['completed_at'] ?: $now;
+    $db->prepare("UPDATE tasks SET status = ?, completed_at = COALESCE(completed_at, ?), validated_at = COALESCE(validated_at, ?), validated_by = COALESCE(validated_by, ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+       ->execute([$newStatus, $completed, $now, $currentUid, $taskId]);
 } else {
     $db->prepare("UPDATE tasks SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
        ->execute([$newStatus, $taskId]);

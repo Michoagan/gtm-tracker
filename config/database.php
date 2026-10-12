@@ -99,6 +99,15 @@ function ensureSchema(PDO $db, string $driver): void {
             if (!in_array('due_date', $taskCols)) {
                 $db->exec("ALTER TABLE tasks ADD COLUMN due_date DATE");
             }
+            if (!in_array('validated_at', $taskCols)) {
+                $db->exec("ALTER TABLE tasks ADD COLUMN validated_at DATETIME");
+            }
+            if (!in_array('validated_by', $taskCols)) {
+                $db->exec("ALTER TABLE tasks ADD COLUMN validated_by INTEGER REFERENCES users(id) ON DELETE SET NULL");
+            }
+            if (!in_array('validation_notes', $taskCols)) {
+                $db->exec("ALTER TABLE tasks ADD COLUMN validation_notes TEXT");
+            }
             $attCols = $db->query("PRAGMA table_info(attachments)")->fetchAll(PDO::FETCH_COLUMN, 1);
             if (!in_array('task_id', $attCols)) {
                 $db->exec("ALTER TABLE attachments ADD COLUMN task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE");
@@ -149,6 +158,9 @@ function ensureSchema(PDO $db, string $driver): void {
             $db->exec("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS started_at TIMESTAMP;");
             $db->exec("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;");
             $db->exec("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS due_date DATE;");
+            $db->exec("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS validated_at TIMESTAMP;");
+            $db->exec("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS validated_by INTEGER REFERENCES users(id) ON DELETE SET NULL;");
+            $db->exec("ALTER TABLE tasks ADD COLUMN IF NOT EXISTS validation_notes TEXT;");
             $db->exec("ALTER TABLE attachments ADD COLUMN IF NOT EXISTS task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE;");
         }
     } catch (Throwable $e) {
@@ -218,6 +230,8 @@ if (!function_exists('statusBadge')) {
         $map = [
             'A faire'=>'badge-gray','En cours'=>'badge-info',
             'Terminee'=>'badge-success','Terminée'=>'badge-success',
+            'Validée'=>'badge-success','Validee'=>'badge-success','validée'=>'badge-success','validee'=>'badge-success',
+            'A valider'=>'badge-warning','À valider'=>'badge-warning','a valider'=>'badge-warning',
             'Bloquee'=>'badge-danger','Bloquée'=>'badge-danger',
             'Nouveau'=>'badge-gray','Contacte'=>'badge-info',
             'En discussion'=>'badge-accent','Interesse'=>'badge-warning',

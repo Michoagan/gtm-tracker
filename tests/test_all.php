@@ -38,7 +38,7 @@ try {
 
     // Check tasks columns
     $cols = $db->query("PRAGMA table_info(tasks)")->fetchAll(PDO::FETCH_COLUMN, 1);
-    $requiredCols = ['id', 'user_id', 'assigned_by', 'title', 'category', 'description', 'status', 'priority', 'task_date', 'due_date', 'started_at', 'completed_at', 'hours_spent', 'result', 'link_url'];
+    $requiredCols = ['id', 'user_id', 'assigned_by', 'title', 'category', 'description', 'status', 'priority', 'task_date', 'due_date', 'started_at', 'completed_at', 'validated_at', 'validated_by', 'hours_spent', 'result', 'link_url'];
     foreach ($requiredCols as $c) {
         assertTest("Colonne tasks.'$c' présente", in_array($c, $cols), "Colonne manquante dans tasks");
     }
@@ -56,6 +56,7 @@ assertTest("Badge catégorie 'tech' CSS", taskCategoryBadge('tech') === 'badge-p
 assertTest("Badge statut 'A faire' CSS", statusBadge('A faire') === 'badge-gray');
 assertTest("Badge statut 'En cours' CSS", statusBadge('En cours') === 'badge-info');
 assertTest("Badge statut 'Terminée' CSS", statusBadge('Terminée') === 'badge-success');
+assertTest("Badge statut 'Validée' CSS", statusBadge('Validée') === 'badge-success');
 
 // 3. WORKFLOW TEST: ADMIN ASSIGNS -> USER STARTS -> USER FINISHES
 echo "\n3. CYCLE DE VIE COMPLET D'UNE TÂCHE (ADMIN -> COLLABORATEUR)\n";
@@ -114,6 +115,20 @@ assertTest("completed_at est bien renseigné", !empty($finishedTask['completed_a
 assertTest("Durée calculée automatiquement (1.5h)", (float)$finishedTask['hours_spent'] >= 1.4 && (float)$finishedTask['hours_spent'] <= 1.6);
 assertTest("Livrable/Résultat enregistré", $finishedTask['result'] === $resultText);
 assertTest("Lien livrable enregistré", $finishedTask['link_url'] === $resultUrl);
+
+// D. L'Admin valide la tâche terminée
+$nowValidate = date('Y-m-d H:i:s');
+$updValidate = $db->prepare("
+    UPDATE tasks 
+    SET status = 'Validée', validated_at = ?, validated_by = ?, updated_at = datetime('now')
+    WHERE id = ?
+");
+$updValidate->execute([$nowValidate, 0, $taskId]);
+$validatedTask = $db->query("SELECT * FROM tasks WHERE id = $taskId")->fetch(PDO::FETCH_ASSOC);
+
+assertTest("Passage au statut 'Validée'", $validatedTask['status'] === 'Validée');
+assertTest("validated_at est bien renseigné", !empty($validatedTask['validated_at']));
+assertTest("validated_by est bien l'Admin (0)", (int)$validatedTask['validated_by'] === 0);
 
 // Nettoyage de la tâche de test
 $db->exec("DELETE FROM tasks WHERE id = $taskId");

@@ -12,10 +12,13 @@ if ($id <= 0) {
 }
 
 $stmt = $db->prepare("
-    SELECT t.*, u.name as user_name, u.email as user_email, assigner.name as assigned_by_name
+    SELECT t.*, u.name as user_name, u.email as user_email, 
+           assigner.name as assigned_by_name,
+           validator.name as validated_by_name
     FROM tasks t
     JOIN users u ON u.id = t.user_id
     LEFT JOIN users assigner ON assigner.id = t.assigned_by
+    LEFT JOIN users validator ON validator.id = t.validated_by
     WHERE t.id = ?
 ");
 $stmt->execute([$id]);
@@ -37,7 +40,9 @@ $canManage = ($isOwner || $isAdm);
 $catBadge = taskCategoryBadge($task['category']);
 $catLabel = taskCategoryLabel($task['category']);
 $stNorm = mb_strtolower($task['status'], 'UTF-8');
-$isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
+$isValidated = ($stNorm === 'validée' || $stNorm === 'validee' || !empty($task['validated_at']));
+$isDone = in_array($stNorm, ['terminée', 'terminee', 'termine', 'validée', 'validee']);
+$isFinishedPending = in_array($stNorm, ['terminée', 'terminee', 'termine']) && !$isValidated;
 ?>
 
 <div class="page-header">
@@ -69,7 +74,17 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
             ← Liste des tâches
         </a>
         <?php if ($canManage): ?>
-            <?php if (in_array(mb_strtolower($task['status'], 'UTF-8'), ['a faire', 'a faire'])): ?>
+            <?php if ($isAdm && $isFinishedPending): ?>
+                <form method="POST" action="/gtm-tracker/tasks/validate.php" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                    <input type="hidden" name="action" value="validate">
+                    <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+                    <button type="submit" class="btn" style="background:#059669;color:#ffffff;font-weight:800;border:none;padding:9px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(5,150,105,0.3);cursor:pointer">
+                        ✅ Valider la tâche (Admin)
+                    </button>
+                </form>
+            <?php elseif (in_array(mb_strtolower($task['status'], 'UTF-8'), ['a faire', 'a faire'])): ?>
                 <form method="POST" action="/gtm-tracker/tasks/start.php" style="display:inline">
                     <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                     <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
@@ -82,15 +97,6 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
                 <a href="/gtm-tracker/tasks/finish.php?id=<?= $task['id'] ?>" class="btn btn-success" style="font-weight:700">
                     🏁 Marquer comme terminée
                 </a>
-            <?php else: ?>
-                <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="display:inline">
-                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-                    <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
-                    <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
-                    <button type="submit" class="btn btn-secondary btn-sm" title="Remettre la tâche en cours si besoin">
-                        ↩️ Remettre En cours
-                    </button>
-                </form>
             <?php endif; ?>
 
             <a href="/gtm-tracker/tasks/edit.php?id=<?= $task['id'] ?>" class="btn btn-secondary">
@@ -148,7 +154,7 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
                 <span style="font-size:22px">⏳</span>
                 <div style="text-align:left">
                     <div style="font-weight:800;font-size:14.5px;color:#000000">1. À faire</div>
-                    <div style="font-size:12px;color:#334155;font-weight:600"><?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? '● Actuellement sélectionné' : 'Mettre en attente' ?></div>
+                    <div style="font-size:12px;color:#334155;font-weight:600"><?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? '● Actuellement sélectionné' : 'Attente démarrage' ?></div>
                 </div>
             </button>
         </form>
@@ -162,36 +168,141 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
                 <span style="font-size:22px">⚡</span>
                 <div style="text-align:left">
                     <div style="font-weight:800;font-size:14.5px;color:<?= ($stNorm === 'en cours') ? '#ffffff' : '#000000' ?>">2. En cours</div>
-                    <div style="font-size:12px;font-weight:600;color:<?= ($stNorm === 'en cours') ? '#e0e7ff' : '#334155' ?>"><?= ($stNorm === 'en cours') ? '● Tâche démarrée' : '▶️ Commencer / Démarrer' ?></div>
+                    <div style="font-size:12px;font-weight:600;color:<?= ($stNorm === 'en cours') ? '#e0e7ff' : '#334155' ?>"><?= ($stNorm === 'en cours') ? '● Travail en cours' : '▶️ Commencer le travail' ?></div>
                 </div>
             </button>
         </form>
 
-        <!-- 3. TERMINÉE (FINALISER) -->
-        <a href="/gtm-tracker/tasks/finish.php?id=<?= $task['id'] ?>" class="btn btn-full" style="padding:14px 16px;font-size:14px;border-radius:10px;justify-content:flex-start;gap:12px;text-decoration:none;cursor:pointer;<?= ($isDone) ? 'background:#059669;color:#ffffff;border:2.5px solid #065f46;box-shadow:0 6px 18px rgba(5,150,105,0.35)' : 'background:#f8fafc;color:#000000;border:1.5px solid #cbd5e1' ?>">
+        <!-- 3. TERMINÉE (PAR COLLABORATEUR) -->
+        <a href="/gtm-tracker/tasks/finish.php?id=<?= $task['id'] ?>" class="btn btn-full" style="padding:14px 16px;font-size:14px;border-radius:10px;justify-content:flex-start;gap:12px;text-decoration:none;cursor:pointer;<?= ($isFinishedPending) ? 'background:#d97706;color:#ffffff;border:2.5px solid #b45309;box-shadow:0 6px 18px rgba(217,119,6,0.35)' : 'background:#f8fafc;color:#000000;border:1.5px solid #cbd5e1' ?>">
             <span style="font-size:22px">🏁</span>
             <div style="text-align:left">
-                <div style="font-weight:800;font-size:14.5px;color:<?= ($isDone) ? '#ffffff' : '#000000' ?>">3. Terminée</div>
-                <div style="font-size:12px;font-weight:600;color:<?= ($isDone) ? '#d1fae5' : '#334155' ?>"><?= ($isDone) ? '● Tâche terminée' : '🏁 Marquer fin & livrable' ?></div>
+                <div style="font-weight:800;font-size:14.5px;color:<?= ($isFinishedPending) ? '#ffffff' : '#000000' ?>">3. Terminée</div>
+                <div style="font-size:12px;font-weight:600;color:<?= ($isFinishedPending) ? '#fef3c7' : '#334155' ?>"><?= ($isFinishedPending) ? '● En attente validation' : '🏁 Marquer fin de mission' ?></div>
             </div>
         </a>
 
-        <!-- 4. BLOQUÉE -->
-        <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0">
+        <!-- 4. VALIDÉE (VALIDATION EXCLUSIVE ADMIN) -->
+        <?php if ($isAdm): ?>
+        <form method="POST" action="/gtm-tracker/tasks/validate.php" style="margin:0">
             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
             <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
-            <input type="hidden" name="new_status" value="Bloquée">
+            <input type="hidden" name="action" value="validate">
             <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
-            <button type="submit" class="btn btn-full" style="padding:14px 16px;font-size:14px;border-radius:10px;justify-content:flex-start;gap:12px;cursor:pointer;<?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? 'background:#dc2626;color:#ffffff;border:2.5px solid #991b1b;box-shadow:0 6px 18px rgba(220,38,38,0.35)' : 'background:#f8fafc;color:#000000;border:1.5px solid #cbd5e1' ?>">
-                <span style="font-size:22px">🛑</span>
+            <button type="submit" class="btn btn-full" style="padding:14px 16px;font-size:14px;border-radius:10px;justify-content:flex-start;gap:12px;cursor:pointer;<?= ($isValidated) ? 'background:#059669;color:#ffffff;border:2.5px solid #065f46;box-shadow:0 6px 18px rgba(5,150,105,0.35)' : 'background:#f8fafc;color:#000000;border:1.5px solid #cbd5e1' ?>" title="Valider définitivement la tâche en tant qu'administrateur">
+                <span style="font-size:22px">✅</span>
                 <div style="text-align:left">
-                    <div style="font-weight:800;font-size:14.5px;color:<?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? '#ffffff' : '#000000' ?>">Bloquée</div>
-                    <div style="font-size:12px;font-weight:600;color:<?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? '#fee2e2' : '#334155' ?>"><?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? '● Tâche bloquée' : 'Signaler un problème' ?></div>
+                    <div style="font-weight:800;font-size:14.5px;color:<?= ($isValidated) ? '#ffffff' : '#000000' ?>">4. Validée</div>
+                    <div style="font-size:12px;font-weight:600;color:<?= ($isValidated) ? '#d1fae5' : '#047857' ?>"><?= ($isValidated) ? '● Validée par Admin' : '👑 Valider (Admin)' ?></div>
                 </div>
             </button>
         </form>
+        <?php else: ?>
+        <div class="btn btn-full" style="padding:14px 16px;font-size:14px;border-radius:10px;justify-content:flex-start;gap:12px;<?= ($isValidated) ? 'background:#059669;color:#ffffff;border:2.5px solid #065f46' : 'background:#f8fafc;color:#64748b;border:1.5px dashed #cbd5e1;cursor:default' ?>">
+            <span style="font-size:22px">✅</span>
+            <div style="text-align:left">
+                <div style="font-weight:800;font-size:14.5px;color:<?= ($isValidated) ? '#ffffff' : '#64748b' ?>">4. Validée</div>
+                <div style="font-size:12px;font-weight:600;color:<?= ($isValidated) ? '#d1fae5' : '#64748b' ?>"><?= ($isValidated) ? '● Validée par l\'Admin' : '👑 Validation Admin requise' ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
+<?php endif; ?>
+
+<!-- CARTE SPÉCIALE : ÉTAT DE VALIDATION PAR L'ADMIN -->
+<?php if ($isFinishedPending): ?>
+    <?php if ($isAdm): ?>
+    <!-- AVIS DE VALIDATION ADMIN -->
+    <div class="card" style="margin-bottom:24px;border:2.5px solid #10b981;background:#ecfdf5;border-radius:16px;padding:22px 24px;box-shadow:0 8px 30px rgba(16,185,129,0.18)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div style="display:flex;gap:14px;align-items:center">
+                <span style="font-size:36px;line-height:1">👑</span>
+                <div>
+                    <div style="font-size:12px;font-weight:800;color:#047857;text-transform:uppercase;letter-spacing:0.08em">
+                        Action requise de l'administrateur
+                    </div>
+                    <h3 style="font-size:18px;font-weight:900;color:#064e3b;margin:3px 0 4px">
+                        Tâche terminée par le collaborateur — Validation requise
+                    </h3>
+                    <p style="color:#065f46;font-size:13.5px;margin:0;font-weight:600">
+                        Le collaborateur a fini son travail. Vérifiez le temps passé et les livrables ci-dessous, puis validez la tâche.
+                    </p>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <form method="POST" action="/gtm-tracker/tasks/validate.php" style="margin:0">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                    <input type="hidden" name="action" value="validate">
+                    <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+                    <button type="submit" class="btn" style="background:#059669;color:#ffffff;font-size:15px;font-weight:800;padding:12px 24px;border-radius:10px;border:none;box-shadow:0 4px 14px rgba(5,150,105,0.4);cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+                        <span style="font-size:18px">✅</span> Valider la tâche (Approuver)
+                    </button>
+                </form>
+                <form method="POST" action="/gtm-tracker/tasks/validate.php" style="margin:0" onsubmit="return confirm('Renvoyer cette tâche en cours au collaborateur pour révision ?');">
+                    <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                    <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                    <input type="hidden" name="action" value="request_changes">
+                    <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+                    <button type="submit" class="btn" style="background:#ffffff;color:#b45309;border:2px solid #f59e0b;font-size:14px;font-weight:700;padding:11px 18px;border-radius:10px;cursor:pointer">
+                        🔄 Demander des corrections
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php else: ?>
+    <!-- AVIS COLLABORATEUR EN ATTENTE DE VALIDATION -->
+    <div class="card" style="margin-bottom:24px;border:2px solid #f59e0b;background:#fffbeb;border-radius:16px;padding:20px 24px">
+        <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:32px">⏳</span>
+            <div>
+                <div style="font-size:12px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:0.08em">
+                    Statut : Travail soumis
+                </div>
+                <h4 style="font-size:17px;font-weight:800;color:#92400e;margin:2px 0 4px">
+                    Tâche terminée — En attente de validation par l'Administrateur
+                </h4>
+                <p style="color:#78350f;font-size:13.5px;margin:0;font-weight:500">
+                    Vos livrables et heures ont été enregistrés avec succès. L'administrateur va vérifier votre mission et la valider.
+                </p>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+<?php elseif ($isValidated): ?>
+    <!-- TÂCHE DÉJÀ VALIDÉE PAR L'ADMIN -->
+    <div class="card" style="margin-bottom:24px;border:2px solid #059669;background:#f0fdf4;border-radius:16px;padding:22px 24px;box-shadow:0 4px 20px rgba(5,150,105,0.12)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:14px">
+                <span style="font-size:34px">🏆</span>
+                <div>
+                    <div style="font-size:12px;font-weight:800;color:#047857;text-transform:uppercase;letter-spacing:0.08em">
+                        Validation officielle
+                    </div>
+                    <h4 style="font-size:18px;font-weight:900;color:#064e3b;margin:2px 0 4px">
+                        ✅ Tâche validée et approuvée par l'Administrateur
+                    </h4>
+                    <p style="color:#065f46;font-size:13.5px;margin:0;font-weight:600">
+                        Validée par <strong><?= htmlspecialchars($task['validated_by_name'] ?? 'Administrateur', ENT_QUOTES, 'UTF-8') ?></strong>
+                        <?= !empty($task['validated_at']) ? 'le ' . date('d/m/Y à H:i', strtotime($task['validated_at'])) : '' ?>.
+                    </p>
+                </div>
+            </div>
+            <?php if ($isAdm): ?>
+            <form method="POST" action="/gtm-tracker/tasks/toggle-status.php" style="margin:0" onsubmit="return confirm('Rouvrir cette tâche et la remettre en cours ?');">
+                <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                <input type="hidden" name="new_status" value="En cours">
+                <input type="hidden" name="redirect" value="/gtm-tracker/tasks/view.php?id=<?= $task['id'] ?>">
+                <button type="submit" class="btn btn-secondary btn-sm" style="font-weight:700">
+                    ↩️ Rouvrir la tâche
+                </button>
+            </form>
+            <?php endif; ?>
+        </div>
+    </div>
 <?php endif; ?>
 
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
@@ -399,6 +510,27 @@ $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
                                 <?= ((float)$task['hours_spent'] > 0) ? number_format((float)$task['hours_spent'], 1, ',', ' ') . ' h' : '—' ?>
                             </div>
                         </div>
+
+                        <?php if ($isValidated): ?>
+                        <div style="margin-top:10px;padding-top:10px;border-top:1.5px dashed #cbd5e1">
+                            <div style="font-size:12px;color:#047857;font-weight:800">✅ VALIDÉE PAR L'ADMIN :</div>
+                            <div style="font-weight:800;font-size:13.5px;color:#047857;margin-top:2px">
+                                <?= !empty($task['validated_at']) ? date('d/m/Y à H:i', strtotime($task['validated_at'])) : 'Validée' ?>
+                            </div>
+                            <?php if (!empty($task['validated_by_name'])): ?>
+                            <div style="font-size:12px;color:#1e293b;font-weight:600;margin-top:2px">
+                                Par <?= htmlspecialchars($task['validated_by_name'], ENT_QUOTES, 'UTF-8') ?> (Admin)
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php elseif ($isDone): ?>
+                        <div style="margin-top:10px;padding-top:10px;border-top:1.5px dashed #cbd5e1">
+                            <div style="font-size:12px;color:#b45309;font-weight:800">VALIDATION ADMIN :</div>
+                            <div style="font-weight:700;font-size:13px;color:#b45309;margin-top:2px">
+                                ⏳ En attente de validation
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
 
                     <div>

@@ -66,14 +66,16 @@ $tasks = $stmt->fetchAll();
 // Global metrics calculation (unfiltered or user-filtered)
 $kpiWhere = $isAdm ? "1=1" : ($fView === 'mine' ? "user_id = $uid" : "1=1");
 $totalTasksCount = $db->query("SELECT COUNT(*) FROM tasks WHERE $kpiWhere")->fetchColumn();
-$doneTasksCount  = $db->query("SELECT COUNT(*) FROM tasks WHERE $kpiWhere AND status IN ('Terminée','Terminee','termine','terminée')")->fetchColumn();
+$doneTasksCount  = $db->query("SELECT COUNT(*) FROM tasks WHERE $kpiWhere AND status IN ('Terminée','Terminee','termine','terminée','Validée','Validee')")->fetchColumn();
+$validatedTasksCount = $db->query("SELECT COUNT(*) FROM tasks WHERE $kpiWhere AND (status IN ('Validée','Validee') OR validated_at IS NOT NULL)")->fetchColumn();
+$pendingValidationCount = $db->query("SELECT COUNT(*) FROM tasks WHERE $kpiWhere AND status IN ('Terminée','Terminee','termine','terminée') AND validated_at IS NULL")->fetchColumn();
 $techTasksCount  = $db->query("SELECT COUNT(*) FROM tasks WHERE $kpiWhere AND category = 'tech'")->fetchColumn();
 $totalHoursSpent = $db->query("SELECT COALESCE(SUM(hours_spent), 0) FROM tasks WHERE $kpiWhere")->fetchColumn();
 $completionRate  = $totalTasksCount > 0 ? round(($doneTasksCount / $totalTasksCount) * 100) : 0;
 
 $allMembers = array_values(getMembers());
 $categories = getTaskCategories();
-$statuses   = ['Terminée', 'En cours', 'A faire', 'Bloquée'];
+$statuses   = ['Validée', 'Terminée', 'En cours', 'A faire', 'Bloquée'];
 $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
 ?>
 
@@ -115,9 +117,9 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
         <div class="stat-sub"><?= $fView === 'mine' ? 'Mes tâches' : 'Équipe complète' ?></div>
     </div>
     <div class="stat-card" style="--card-color:#10b981">
-        <div class="stat-label">Terminées</div>
+        <div class="stat-label">Terminées / Validées</div>
         <div class="stat-value"><?= (int)$doneTasksCount ?> <span style="font-size:14px;font-weight:500;color:var(--text-muted)">(<?= $completionRate ?>%)</span></div>
-        <div class="stat-sub">Tâches achevées avec succès</div>
+        <div class="stat-sub"><?= (int)$validatedTasksCount ?> validée(s) • <?= (int)$pendingValidationCount ?> à valider</div>
     </div>
     <div class="stat-card" style="--card-color:#a855f7">
         <div class="stat-label">Développement Tech</div>
@@ -320,10 +322,12 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                         <td style="white-space:nowrap;font-weight:800;font-size:14px;color:#000000">
                             <?= ((float)$t['hours_spent'] > 0) ? number_format((float)$t['hours_spent'], 1, ',', ' ') . ' h' : '—' ?>
                         </td>
-                        <td style="min-width:160px">
+                        <td style="min-width:170px">
                             <?php 
                                 $stNorm = mb_strtolower($t['status'], 'UTF-8');
-                                $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine']);
+                                $isValidated = ($stNorm === 'validée' || $stNorm === 'validee' || !empty($t['validated_at']));
+                                $isDone = in_array($stNorm, ['terminée', 'terminee', 'termine', 'validée', 'validee']);
+                                $isFinishedPending = in_array($stNorm, ['terminée', 'terminee', 'termine']) && !$isValidated;
                             ?>
                             <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
                                 <?php if ($canManage): ?>
@@ -332,16 +336,33 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                                         <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                         <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
                                         <input type="hidden" name="redirect" value="/gtm-tracker/tasks/index.php?<?= htmlspecialchars(http_build_query($_GET), ENT_QUOTES, 'UTF-8') ?>">
-                                        <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:6px 28px 6px 10px;font-size:12.5px;font-weight:700;border-radius:20px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($isDone ? '#059669' : ($stNorm === 'en cours' ? '#4f46e5' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#dc2626' : '#cbd5e1'))) ?>;color:#000000" title="Changer le statut de la tâche">
+                                        <select name="new_status" onchange="this.form.submit()" class="form-control" style="padding:6px 28px 6px 10px;font-size:12.5px;font-weight:700;border-radius:20px;height:auto;cursor:pointer;background-color:#ffffff;border:2px solid <?= ($isValidated ? '#059669' : ($isFinishedPending ? '#d97706' : ($stNorm === 'en cours' ? '#4f46e5' : ($stNorm === 'bloquée' || $stNorm === 'bloquee' ? '#dc2626' : '#cbd5e1')))) ?>;color:#000000" title="Changer le statut de la tâche">
                                             <option value="A faire" <?= ($stNorm === 'a faire' || $stNorm === 'à faire') ? 'selected' : '' ?>>⏳ À faire</option>
                                             <option value="En cours" <?= ($stNorm === 'en cours') ? 'selected' : '' ?>>⚡ En cours</option>
-                                            <option value="Terminée" <?= ($isDone) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                            <option value="Terminée" <?= ($isFinishedPending) ? 'selected' : '' ?>>🏁 Terminée</option>
+                                            <?php if ($isAdm): ?>
+                                            <option value="Validée" <?= ($isValidated) ? 'selected' : '' ?>>✅ Validée (Admin)</option>
+                                            <?php endif; ?>
                                             <option value="Bloquée" <?= ($stNorm === 'bloquée' || $stNorm === 'bloquee') ? 'selected' : '' ?>>🛑 Bloquée</option>
                                         </select>
                                     </form>
 
                                     <!-- Bouton d'action directe -->
-                                    <?php if ($stNorm === 'a faire' || $stNorm === 'à faire'): ?>
+                                    <?php if ($isAdm && $isFinishedPending): ?>
+                                        <form method="POST" action="/gtm-tracker/tasks/validate.php" style="margin:0;width:100%">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+                                            <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
+                                            <input type="hidden" name="action" value="validate">
+                                            <input type="hidden" name="redirect" value="/gtm-tracker/tasks/index.php?<?= htmlspecialchars(http_build_query($_GET), ENT_QUOTES, 'UTF-8') ?>">
+                                            <button type="submit" class="btn btn-sm" style="background:#059669;color:#fff;width:100%;padding:4px 8px;font-size:12px;font-weight:800;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:4px;border:none;box-shadow:0 2px 6px rgba(5,150,105,0.3)" title="Valider et approuver cette tâche terminée">
+                                                ✅ Valider (Admin)
+                                            </button>
+                                        </form>
+                                    <?php elseif ($isValidated): ?>
+                                        <span class="badge badge-success" style="font-size:12px;padding:3px 8px;display:flex;align-items:center;gap:4px">
+                                            ✅ Validée par Admin
+                                        </span>
+                                    <?php elseif ($stNorm === 'a faire' || $stNorm === 'à faire'): ?>
                                         <form method="POST" action="/gtm-tracker/tasks/start.php" style="margin:0;width:100%">
                                             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                                             <input type="hidden" name="task_id" value="<?= $t['id'] ?>">
@@ -354,6 +375,10 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
                                         <a href="/gtm-tracker/tasks/finish.php?id=<?= $t['id'] ?>" class="btn btn-sm" style="background:#10b981;color:#fff;width:100%;padding:4px 8px;font-size:12px;font-weight:700;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:4px;text-decoration:none" title="Marquer la fin du travail et enregistrer le livrable">
                                             🏁 Terminer
                                         </a>
+                                    <?php elseif ($isFinishedPending && !$isAdm): ?>
+                                        <span class="badge badge-warning" style="font-size:11.5px;padding:3px 6px" title="En attente de validation par l'administrateur">
+                                            ⏳ À valider par Admin
+                                        </span>
                                     <?php endif; ?>
                                 <?php else: ?>
                                     <span class="badge <?= statusBadge($t['status']) ?>" style="font-size:12.5px;padding:4px 10px">
