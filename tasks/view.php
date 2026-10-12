@@ -114,33 +114,55 @@ $isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'termi
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
     <!-- Main Content -->
     <div style="display:flex;flex-direction:column;gap:20px">
-        <!-- Description -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Détails du travail effectué</h3>
+        <!-- Description & Détails du travail -->
+        <div class="card" style="border:1.5px solid rgba(255,255,255,0.2);box-shadow:0 8px 30px rgba(0,0,0,0.4)">
+            <div class="card-header" style="background:rgba(255,255,255,0.03);padding:18px 24px;border-bottom:1.5px solid rgba(255,255,255,0.12);display:flex;justify-content:space-between;align-items:center">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <span style="font-size:22px">📋</span>
+                    <div>
+                        <h3 class="card-title" style="font-size:17px;font-weight:700;color:#ffffff;margin:0">
+                            Détails du travail effectué
+                        </h3>
+                        <span style="font-size:12.5px;color:#cbd5e1">Spécifications, modules développés et déroulement</span>
+                    </div>
+                </div>
+                <?php if ($canManage): ?>
+                <a href="/gtm-tracker/tasks/edit.php?id=<?= $task['id'] ?>" class="btn btn-secondary btn-sm" style="font-size:12.5px;padding:5px 12px">
+                    ✏️ Modifier les détails
+                </a>
+                <?php endif; ?>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding:24px">
                 <?php if (!empty($task['description'])): ?>
-                    <div style="font-size:14.5px;line-height:1.7;color:var(--text-main);white-space:pre-wrap">
-                        <?= htmlspecialchars($task['description'], ENT_QUOTES, 'UTF-8') ?>
+                    <div style="background:#090d16;border:1.5px solid rgba(255,255,255,0.18);border-radius:12px;padding:22px 24px;font-size:16px;line-height:1.8;color:#ffffff;white-space:pre-wrap;word-break:break-word;font-weight:450;box-shadow:inset 0 2px 6px rgba(0,0,0,0.4)">
+<?= htmlspecialchars($task['description'], ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php else: ?>
-                    <p style="color:var(--text-muted);font-style:italic">Aucune description détaillée fournie.</p>
+                    <div style="background:#090d16;border:1.5px dashed rgba(255,255,255,0.2);border-radius:12px;padding:24px;text-align:center">
+                        <p style="color:#cbd5e1;font-size:15px;margin:0 0 12px;font-style:italic">Aucune description détaillée n'a été saisie pour cette tâche.</p>
+                        <?php if ($canManage): ?>
+                        <a href="/gtm-tracker/tasks/edit.php?id=<?= $task['id'] ?>" class="btn btn-primary btn-sm">
+                            + Ajouter les détails du travail
+                        </a>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
 
                 <?php if (!empty($task['link_url'])): ?>
-                    <div style="margin-top:20px;padding:12px 16px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.25);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between">
-                        <div style="display:flex;align-items:center;gap:10px">
-                            <span style="font-size:18px">🔗</span>
+                    <div style="margin-top:20px;padding:16px 20px;background:#0c1e33;border:1.5px solid #0284c7;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                        <div style="display:flex;align-items:center;gap:12px">
+                            <span style="font-size:24px">🔗</span>
                             <div>
-                                <div style="font-size:12px;color:var(--text-dim);text-transform:uppercase;font-weight:600">Lien externe / Référence</div>
-                                <a href="<?= htmlspecialchars($task['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="font-weight:600;color:var(--info);word-break:break-all">
+                                <div style="font-size:12px;color:#7dd3fc;text-transform:uppercase;font-weight:800;letter-spacing:0.05em">
+                                    Lien externe / Référence du livrable
+                                </div>
+                                <a href="<?= htmlspecialchars($task['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" style="font-weight:700;color:#ffffff;font-size:15px;word-break:break-all;text-decoration:underline">
                                     <?= htmlspecialchars($task['link_url'], ENT_QUOTES, 'UTF-8') ?>
                                 </a>
                             </div>
                         </div>
-                        <a href="<?= htmlspecialchars($task['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-sm btn-primary" style="white-space:nowrap">
-                            Ouvrir ↗
+                        <a href="<?= htmlspecialchars($task['link_url'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener" class="btn btn-primary" style="white-space:nowrap;padding:8px 18px;font-size:13.5px;font-weight:700">
+                            Ouvrir le lien ↗
                         </a>
                     </div>
                 <?php endif; ?>
@@ -148,19 +170,26 @@ $isDone = in_array(mb_strtolower($task['status'], 'UTF-8'), ['terminée', 'termi
         </div>
 
         <!-- Result / Deliverable -->
-        <div class="card">
-            <div class="card-header" style="border-bottom:1px solid rgba(16,185,129,0.2);background:rgba(16,185,129,0.04)">
-                <h3 class="card-title" style="color:#10b981;display:flex;align-items:center;gap:8px">
+        <div class="card" style="border:1.5px solid rgba(16,185,129,0.35);box-shadow:0 8px 30px rgba(0,0,0,0.4)">
+            <div class="card-header" style="border-bottom:1.5px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);padding:18px 24px">
+                <h3 class="card-title" style="color:#34d399;display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700">
                     🎯 Livrable &amp; Résultat obtenu
                 </h3>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding:24px">
                 <?php if (!empty($task['result'])): ?>
-                    <div style="font-size:14px;line-height:1.6;color:var(--text-main);white-space:pre-wrap">
-                        <?= htmlspecialchars($task['result'], ENT_QUOTES, 'UTF-8') ?>
+                    <div style="background:#042316;border:1.5px solid #10b981;border-radius:12px;padding:22px 24px;font-size:16px;line-height:1.8;color:#ffffff;white-space:pre-wrap;word-break:break-word;font-weight:450">
+<?= htmlspecialchars($task['result'], ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php else: ?>
-                    <p style="color:var(--text-muted);font-style:italic">Aucun livrable formalisé pour le moment.</p>
+                    <div style="background:#090d16;border:1.5px dashed rgba(16,185,129,0.3);border-radius:12px;padding:24px;text-align:center">
+                        <p style="color:#cbd5e1;font-size:15px;margin:0 0 12px;font-style:italic">Aucun livrable formalisé pour le moment.</p>
+                        <?php if ($canManage && !$isDone): ?>
+                        <a href="/gtm-tracker/tasks/finish.php?id=<?= $task['id'] ?>" class="btn btn-success btn-sm" style="background:#10b981;color:#fff">
+                            🏁 Marquer comme terminée &amp; Saisir le livrable
+                        </a>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

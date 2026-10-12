@@ -141,14 +141,18 @@ $attachments = $stmtAtt->fetchAll();
 
                 <!-- Description -->
                 <div class="form-group form-full">
-                    <label class="form-label" style="font-weight:600">Description détaillée / Spécifications</label>
-                    <textarea name="description" class="form-control" rows="4"><?= htmlspecialchars($task['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <label class="form-label" style="font-size:14px;font-weight:700;color:#ffffff">
+                        📋 Détails du travail à effectuer / Spécifications
+                    </label>
+                    <textarea name="description" class="form-control" rows="5" style="background:#090d16;color:#ffffff;font-size:15px;line-height:1.6;border:1.5px solid rgba(255,255,255,0.25);border-radius:8px;padding:14px 16px"><?= htmlspecialchars($task['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                 </div>
 
                 <!-- Résultat / Livrable -->
                 <div class="form-group form-full">
-                    <label class="form-label" style="font-weight:600">Résultat obtenu / Livrable</label>
-                    <textarea name="result" class="form-control" rows="2"><?= htmlspecialchars($task['result'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <label class="form-label" style="font-size:14px;font-weight:700;color:#ffffff">
+                        🎯 Livrable / Résultat obtenu
+                    </label>
+                    <textarea name="result" class="form-control" rows="3" style="background:#090d16;color:#ffffff;font-size:15px;line-height:1.6;border:1.5px solid rgba(255,255,255,0.25);border-radius:8px;padding:14px 16px"><?= htmlspecialchars($task['result'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                 </div>
 
                 <!-- Ajouter un fichier -->
