@@ -198,22 +198,22 @@ $recentTasks = $db->query("
     </div>
 
     <div class="stats-grid" style="margin-bottom:0">
-        <div class="stat-card" style="--card-color:#8b5cf6;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#8b5cf6">
             <div class="stat-label">Tâches totales</div>
             <div class="stat-value"><?= (int)$totalTasks ?></div>
             <div class="stat-sub"><?= $isAdm ? 'Équipe complète' : 'Mes tâches' ?></div>
         </div>
-        <div class="stat-card" style="--card-color:#10b981;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#10b981">
             <div class="stat-label">Tâches terminées</div>
             <div class="stat-value"><?= (int)$doneTasks ?></div>
             <div class="stat-sub">Réalisations accomplies</div>
         </div>
-        <div class="stat-card" style="--card-color:#a855f7;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#a855f7">
             <div class="stat-label">Développement Tech</div>
             <div class="stat-value"><?= (int)$techTasks ?></div>
             <div class="stat-sub">Code &amp; Architecture</div>
         </div>
-        <div class="stat-card" style="--card-color:#f59e0b;background:var(--bg-elevated)">
+        <div class="stat-card" style="--card-color:#f59e0b">
             <div class="stat-label">Heures investies</div>
             <div class="stat-value"><?= number_format((float)$totalHours, 1, ',', ' ') ?> h</div>
             <div class="stat-sub">Temps cumulé</div>

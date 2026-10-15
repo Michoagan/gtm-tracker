@@ -85,7 +85,7 @@ $priorities = ['Basse', 'Normale', 'Haute', 'Urgente'];
         <p class="page-header-sub"><?= $isAdm ? 'Attribuez les missions à vos collaborateurs et suivez leur avancement en temps réel' : 'Consultez les missions qui vous sont attribuées par l\'administrateur, marquez votre début et votre fin' ?></p>
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <div style="display:inline-flex;background:var(--bg-elevated);border:1.5px solid #cbd5e1;border-radius:var(--radius-sm);padding:2px">
+        <div style="display:inline-flex;background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:var(--radius-sm);padding:2px">
             <a href="?view=all<?= $fCategory ? '&category='.urlencode($fCategory) : '' ?>" class="btn btn-sm <?= ($fView !== 'mine' && $fUser === '') ? 'btn-primary' : 'btn-secondary' ?>" style="border:none;padding:5px 12px;font-weight:600">
                 👥 Toute l'équipe
             </a>

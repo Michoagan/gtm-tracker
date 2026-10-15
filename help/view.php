@@ -127,7 +127,7 @@ $comments = $stmtComm->fetchAll();
             </div>
         </div>
         <div class="card-body">
-            <div style="background:var(--bg-base);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:14px;line-height:1.6;white-space:pre-wrap;color:var(--text-main)"><?= htmlspecialchars($req['message'], ENT_QUOTES, 'UTF-8') ?></div>
+            <div style="background:#f8fafc;padding:18px;border-radius:var(--radius-sm);border:1.5px solid #cbd5e1;font-size:14.5px;line-height:1.6;white-space:pre-wrap;color:#000000;font-weight:500"><?= htmlspecialchars($req['message'], ENT_QUOTES, 'UTF-8') ?></div>
         </div>
     </div>
 
@@ -136,11 +136,11 @@ $comments = $stmtComm->fetchAll();
         <div class="card-header"><span class="card-title">Contexte lié</span></div>
         <div class="card-body">
             <div style="display:flex;flex-direction:column;gap:14px">
-                <div style="background:var(--bg-base);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border)">
-                    <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600">Action concernée</div>
+                <div style="background:#f8fafc;padding:14px;border-radius:var(--radius-sm);border:1.5px solid #cbd5e1">
+                    <div style="font-size:11.5px;color:#1e293b;text-transform:uppercase;font-weight:700">Action concernée</div>
                     <?php if (!empty($req['action_title'])): ?>
                         <div style="margin-top:4px">
-                            <a href="/gtm-tracker/actions/view.php?id=<?= $req['action_id'] ?>" style="font-weight:600;font-size:13.5px">
+                            <a href="/gtm-tracker/actions/view.php?id=<?= $req['action_id'] ?>" style="font-weight:700;font-size:14px;color:#4338ca">
                                 🎯 <?= htmlspecialchars($req['action_title'], ENT_QUOTES, 'UTF-8') ?>
                             </a>
                             <div style="margin-top:4px">
@@ -148,23 +148,23 @@ $comments = $stmtComm->fetchAll();
                             </div>
                         </div>
                     <?php else: ?>
-                        <div style="color:var(--text-dim);font-size:13px;margin-top:2px">Aucune action spécifique liée</div>
+                        <div style="color:#1e293b;font-size:13px;margin-top:2px">Aucune action spécifique liée</div>
                     <?php endif; ?>
                 </div>
 
-                <div style="background:var(--bg-base);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border)">
-                    <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600">Prospect concerné</div>
+                <div style="background:#f8fafc;padding:14px;border-radius:var(--radius-sm);border:1.5px solid #cbd5e1">
+                    <div style="font-size:11.5px;color:#1e293b;text-transform:uppercase;font-weight:700">Prospect concerné</div>
                     <?php if (!empty($req['prospect_name'])): ?>
                         <div style="margin-top:4px">
-                            <a href="/gtm-tracker/prospects/view.php?id=<?= $req['prospect_id'] ?>" style="font-weight:600;font-size:13.5px">
+                            <a href="/gtm-tracker/prospects/view.php?id=<?= $req['prospect_id'] ?>" style="font-weight:700;font-size:14px;color:#4338ca">
                                 👤 <?= htmlspecialchars($req['prospect_name'], ENT_QUOTES, 'UTF-8') ?>
                                 <?php if (!empty($req['prospect_company'])): ?>
-                                    <span style="font-weight:normal;color:var(--text-muted)">— <?= htmlspecialchars($req['prospect_company'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    <span style="font-weight:600;color:#1e293b">— <?= htmlspecialchars($req['prospect_company'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <?php endif; ?>
                             </a>
                         </div>
                     <?php else: ?>
-                        <div style="color:var(--text-dim);font-size:13px;margin-top:2px">Aucun prospect spécifique lié</div>
+                        <div style="color:#1e293b;font-size:13px;margin-top:2px">Aucun prospect spécifique lié</div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -185,7 +185,7 @@ $comments = $stmtComm->fetchAll();
         <?php else: ?>
             <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px">
                 <?php foreach ($comments as $c): ?>
-                <div style="background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px">
+                <div style="background:#ffffff;border:1.5px solid #cbd5e1;border-radius:var(--radius-sm);padding:16px">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                         <div style="display:flex;align-items:center;gap:8px">
                             <div class="user-avatar" style="width:26px;height:26px;font-size:11px">

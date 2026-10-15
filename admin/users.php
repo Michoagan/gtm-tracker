@@ -38,21 +38,21 @@ foreach ($members as $i => $m):
         </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-bottom:20px">
-        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px">
-            <div style="font-size:18px;font-weight:700;color:var(--text-main)"><?= $actCount ?></div>
-            <div style="font-size:9.5px;color:var(--text-dim);text-transform:uppercase">Actions</div>
+        <div style="background:#f8fafc;padding:8px 4px;border-radius:8px;border:1px solid #cbd5e1">
+            <div style="font-size:18px;font-weight:800;color:#000000"><?= $actCount ?></div>
+            <div style="font-size:10px;color:#1e293b;font-weight:700;text-transform:uppercase">Actions</div>
         </div>
-        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px">
-            <div style="font-size:18px;font-weight:700;color:var(--text-main)"><?= $convCount ?></div>
-            <div style="font-size:9.5px;color:var(--text-dim);text-transform:uppercase">Convs</div>
+        <div style="background:#f8fafc;padding:8px 4px;border-radius:8px;border:1px solid #cbd5e1">
+            <div style="font-size:18px;font-weight:800;color:#000000"><?= $convCount ?></div>
+            <div style="font-size:10px;color:#1e293b;font-weight:700;text-transform:uppercase">Convs</div>
         </div>
-        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px">
-            <div style="font-size:18px;font-weight:700;color:var(--text-main)"><?= $prospCount ?></div>
-            <div style="font-size:9.5px;color:var(--text-dim);text-transform:uppercase">Prospects</div>
+        <div style="background:#f8fafc;padding:8px 4px;border-radius:8px;border:1px solid #cbd5e1">
+            <div style="font-size:18px;font-weight:800;color:#000000"><?= $prospCount ?></div>
+            <div style="font-size:10px;color:#1e293b;font-weight:700;text-transform:uppercase">Prospects</div>
         </div>
-        <div style="background:var(--bg-base);padding:8px 4px;border-radius:8px;border:1px solid rgba(139,92,246,0.3)">
-            <div style="font-size:18px;font-weight:700;color:#8b5cf6"><?= $taskCount ?></div>
-            <div style="font-size:9.5px;color:#a78bfa;text-transform:uppercase;font-weight:600">Tâches</div>
+        <div style="background:#f8fafc;padding:8px 4px;border-radius:8px;border:1.5px solid rgba(139,92,246,0.4)">
+            <div style="font-size:18px;font-weight:800;color:#7c3aed"><?= $taskCount ?></div>
+            <div style="font-size:10px;color:#6d28d9;text-transform:uppercase;font-weight:700">Tâches</div>
         </div>
     </div>
     <div style="display:flex;gap:8px;flex-direction:column">

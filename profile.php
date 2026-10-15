@@ -131,18 +131,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrfToken($_POST['csrf_token'
                 </div>
             </div>
 
-            <div style="background:var(--bg-base);padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px">
-                <div style="display:flex;justify-content:space-between;font-size:12.5px">
-                    <span style="color:var(--text-muted)">Identifiant unique :</span>
-                    <strong>#<?= $currentUser['id'] ?></strong>
+            <div style="background:#f8fafc;padding:16px;border-radius:var(--radius-sm);border:1.5px solid #cbd5e1;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;justify-content:space-between;font-size:13px">
+                    <span style="color:#1e293b;font-weight:600">Identifiant unique :</span>
+                    <strong style="color:#000000">#<?= $currentUser['id'] ?></strong>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:12.5px">
-                    <span style="color:var(--text-muted)">Date d'inscription :</span>
-                    <span><?= date('d/m/Y à H:i', strtotime($currentUser['created_at'])) ?></span>
+                <div style="display:flex;justify-content:space-between;font-size:13px">
+                    <span style="color:#1e293b;font-weight:600">Date d'inscription :</span>
+                    <span style="color:#000000;font-weight:600"><?= date('d/m/Y à H:i', strtotime($currentUser['created_at'])) ?></span>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:12.5px">
-                    <span style="color:var(--text-muted)">Base de données :</span>
-                    <span style="color:#10b981;font-weight:600">PostgreSQL Aiven (Cloud)</span>
+                <div style="display:flex;justify-content:space-between;font-size:13px">
+                    <span style="color:#1e293b;font-weight:600">Base de données :</span>
+                    <span style="color:#059669;font-weight:700">PostgreSQL Aiven (Cloud)</span>
                 </div>
             </div>
 

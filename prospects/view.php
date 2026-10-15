@@ -193,39 +193,39 @@ $followUpStatuses = ['A relancer', 'En cours de discussion', 'Rendez-vous planif
             <?php else: ?>
                 <div style="display:flex;flex-direction:column;gap:16px">
                     <?php foreach ($convs as $c): ?>
-                    <div style="background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow-sm);transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--border)'">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+                    <div style="background:#ffffff;border:1.5px solid #cbd5e1;border-radius:var(--radius-md);padding:18px;box-shadow:var(--shadow-sm);transition:all 0.2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='#cbd5e1'">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
                             <div style="display:flex;align-items:center;gap:8px">
-                                <span class="badge badge-gray" style="font-weight:600"><?= htmlspecialchars($c['channel_name'] ?? 'Canal', ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="badge badge-gray" style="font-weight:700;color:#000000"><?= htmlspecialchars($c['channel_name'] ?? 'Canal', ENT_QUOTES, 'UTF-8') ?></span>
                                 <span class="badge <?= statusBadge($c['status']) ?>"><?= htmlspecialchars($c['status'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <?php if (!empty($c['user_name'])): ?>
-                                    <span style="font-size:12px;color:var(--text-muted)">par <strong><?= htmlspecialchars($c['user_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
+                                    <span style="font-size:12.5px;color:#1e293b">par <strong style="color:#000000"><?= htmlspecialchars($c['user_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
                                 <?php endif; ?>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px">
-                                <span style="font-size:12.5px;color:var(--text-dim);font-weight:500">📅 <?= date('d/m/Y', strtotime($c['conversation_date'])) ?></span>
-                                <a href="/gtm-tracker/conversations/edit.php?id=<?= $c['id'] ?>" class="btn btn-secondary btn-sm" style="padding:2px 8px;font-size:11px" title="Modifier cet échange">✏️</a>
+                                <span style="font-size:12.5px;color:#1e293b;font-weight:600">📅 <?= date('d/m/Y', strtotime($c['conversation_date'])) ?></span>
+                                <a href="/gtm-tracker/conversations/edit.php?id=<?= $c['id'] ?>" class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:12px;font-weight:700" title="Modifier cet échange">✏️ Modifier</a>
                             </div>
                         </div>
 
                         <?php if (!empty($c['message_sent'])): ?>
-                            <div style="background:rgba(255, 255, 255, 0.02);border-left:3px solid var(--primary);padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:8px">
-                                <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;color:var(--primary);margin-bottom:4px">Message envoyé / Notes de l'échange</div>
-                                <div style="font-size:13.5px;line-height:1.5;color:var(--text-main);white-space:pre-wrap"><?= htmlspecialchars($c['message_sent'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid var(--primary);padding:12px 16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:10px">
+                                <div style="font-size:11.5px;font-weight:800;text-transform:uppercase;color:#4338ca;letter-spacing:0.04em;margin-bottom:4px">Message envoyé / Notes de l'échange</div>
+                                <div style="font-size:14px;line-height:1.6;color:#000000;font-weight:500;white-space:pre-wrap"><?= htmlspecialchars($c['message_sent'], ENT_QUOTES, 'UTF-8') ?></div>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($c['response_received'])): ?>
-                            <div style="background:rgba(16, 185, 129, 0.05);border-left:3px solid var(--success);padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:8px">
-                                <div style="font-size:11.5px;font-weight:600;text-transform:uppercase;color:var(--success);margin-bottom:4px">Réponse reçue du prospect</div>
-                                <div style="font-size:13.5px;line-height:1.5;color:var(--text-main);white-space:pre-wrap"><?= htmlspecialchars($c['response_received'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #10b981;padding:12px 16px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:10px">
+                                <div style="font-size:11.5px;font-weight:800;text-transform:uppercase;color:#047857;letter-spacing:0.04em;margin-bottom:4px">Réponse reçue du prospect</div>
+                                <div style="font-size:14px;line-height:1.6;color:#000000;font-weight:500;white-space:pre-wrap"><?= htmlspecialchars($c['response_received'], ENT_QUOTES, 'UTF-8') ?></div>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($c['next_action'])): ?>
-                            <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;background:rgba(245, 158, 11, 0.1);padding:8px 12px;border-radius:var(--radius-sm);color:#fbbf24;margin-top:6px">
-                                <span>⏰</span>
-                                <div><strong>Prochaine étape prévue :</strong> <?= htmlspecialchars($c['next_action'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <div style="display:flex;align-items:center;gap:10px;font-size:13px;background:#fffbeb;border:1.5px solid #fde68a;padding:10px 14px;border-radius:var(--radius-sm);color:#92400e;margin-top:8px">
+                                <span style="font-size:16px">⏰</span>
+                                <div><strong style="color:#78350f">Prochaine étape prévue :</strong> <span style="color:#000000;font-weight:600"><?= htmlspecialchars($c['next_action'], ENT_QUOTES, 'UTF-8') ?></span></div>
                             </div>
                         <?php endif; ?>
                     </div>
